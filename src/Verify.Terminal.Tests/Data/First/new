@@ -1,0 +1,15 @@
+Diagnostics {
+    diagnostics: [
+        Diagnostic {
+            code: "MEW1002",
+            location: Location {
+                path: "file.mew",
+                span: Span {
+                    position: 0,
+                    length: 1,
+                },
+            },
+            severity: Error,
+        },
+    ],
+}

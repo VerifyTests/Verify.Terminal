@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Data\second.new" />
+    <None Remove="Data\second.old" />
+    <None Remove="Data\simple.new" />
+    <None Remove="Data\simple.old" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\stylecop.json" Link="Properties/stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Data\Second\new" />
+    <EmbeddedResource Include="Data\Second\old" />
+    <EmbeddedResource Include="Data\First\new" />
+    <EmbeddedResource Include="Data\First\old" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
+    <PackageReference Include="Shouldly" Version="4.1.0" />
+    <PackageReference Include="Spectre.Console.Testing" Version="0.45.0" />
+    <PackageReference Include="Spectre.IO.Testing" Version="0.9.0" />
+    <PackageReference Include="Spectre.Verify.Extensions" Version="17.1.6" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Verify.Terminal\Verify.Terminal.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Expectations\" />
+  </ItemGroup>
+
+</Project>
