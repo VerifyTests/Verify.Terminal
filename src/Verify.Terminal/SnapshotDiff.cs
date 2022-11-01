@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using DiffPlex.DiffBuilder.Model;
 
 namespace Verify.Terminal;
@@ -21,6 +22,15 @@ public sealed class SnapshotDiff
         var index = 0;
         var start = default(int?);
         var ranges = new List<(int Start, int Stop)>();
+
+        // Only got a new file?
+        if (Old.All(x => x.Type == ChangeType.Imaginary))
+        {
+            return new List<(int Start, int Stop)>
+            {
+                (0, New.Count - 1),
+            };
+        }
 
         while (index < New.Count)
         {
