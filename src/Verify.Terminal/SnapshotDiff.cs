@@ -28,7 +28,7 @@ public sealed class SnapshotDiff
         {
             return new List<(int Start, int Stop)>
             {
-                (0, New.Count - 1),
+                (0, New.Count),
             };
         }
 
