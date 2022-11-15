@@ -54,6 +54,11 @@ public sealed class SnapshotDiff
             index++;
         }
 
+        if (ranges.Count == 0)
+        {
+            return new List<(int Start, int Stop)>();
+        }
+
         return MergeRanges(ranges);
     }
 

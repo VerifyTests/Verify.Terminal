@@ -20,7 +20,7 @@ public sealed class SnapshotDiffer
         var oldText = ReadText(snapshot.Verified) ?? string.Empty;
         var newText = ReadText(snapshot.Received) ?? string.Empty;
 
-        var diff = SideBySideDiffBuilder.Instance.BuildDiffModel(oldText, newText);
+        var diff = SideBySideDiffBuilder.Instance.BuildDiffModel(oldText, newText, false);
 
         return new SnapshotDiff(snapshot, diff.OldText.Lines, diff.NewText.Lines);
     }

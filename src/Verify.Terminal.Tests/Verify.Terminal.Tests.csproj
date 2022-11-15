@@ -40,8 +40,4 @@
     <ProjectReference Include="..\Verify.Terminal\Verify.Terminal.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Expectations\" />
-  </ItemGroup>
-
 </Project>

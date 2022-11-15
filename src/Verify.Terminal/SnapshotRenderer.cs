@@ -54,7 +54,9 @@ public class SnapshotRenderer
         // Top line
         ctx.Builder.AppendRepeated(Character.HorizontalLine, marginWidth);
         ctx.Builder.Append('┬');
-        ctx.Builder.AppendRepeated(Character.HorizontalLine, _console.Profile.Width - (marginWidth + 1));
+        ctx.Builder.Append(Character.HorizontalLine);
+        ctx.Builder.Append('┬');
+        ctx.Builder.AppendRepeated(Character.HorizontalLine, _console.Profile.Width - (marginWidth + 3));
         ctx.Builder.CommitLine();
 
         var zip = diff.New.Zip(diff.Old).ToList();
@@ -93,14 +95,16 @@ public class SnapshotRenderer
             // Bottom line
             ctx.Builder.AppendRepeated(Character.HorizontalLine, marginWidth);
             ctx.Builder.Append(last ? '┴' : '┼');
-            ctx.Builder.AppendRepeated(Character.HorizontalLine, _console.Profile.Width - (marginWidth + 1));
+            ctx.Builder.Append(Character.HorizontalLine);
+            ctx.Builder.Append(last ? '┴' : '┼');
+            ctx.Builder.AppendRepeated(Character.HorizontalLine, _console.Profile.Width - (marginWidth + 3));
             ctx.Builder.CommitLine();
         }
 
         return ctx.Builder.Build();
     }
 
-    private static void RenderLine(
+    private void RenderLine(
         SnapshotRendererContext ctx, DiffPiece piece,
         int index, char op, Color color,
         bool showLeft, bool showRight)
@@ -108,14 +112,33 @@ public class SnapshotRenderer
         var leftLineNumber = showLeft ? (index + 1).ToString() : string.Empty;
         var rightLineNumber = showRight ? (index + 1).ToString() : string.Empty;
 
-        ctx.Builder.AppendSpaces(4);
-        ctx.Builder.Append(leftLineNumber.PadLeft(ctx.LineNumberWidth), Color.Navy);
-        ctx.Builder.AppendSpaces(4);
-        ctx.Builder.Append(rightLineNumber.PadLeft(ctx.LineNumberWidth), Color.Navy);
-        ctx.Builder.AppendSpace();
-        ctx.Builder.Append(Character.VerticalLine);
-        ctx.Builder.Append(op, color);
-        ctx.Builder.Append(piece.Text, color);
-        ctx.Builder.CommitLine();
+        var maxWidth = _console.Profile.Width - (4 + ctx.LineNumberWidth + 4 + ctx.LineNumberWidth + 1 + 1 + 1 + 1);
+        var pieces = (piece.Text.Length / maxWidth) + ((piece.Text.Length % maxWidth) == 0 ? 0 : 1);
+
+        for (var i = 0; i < pieces; i++)
+        {
+            ctx.Builder.AppendSpaces(4);
+            ctx.Builder.Append(leftLineNumber.PadLeft(ctx.LineNumberWidth), Color.Navy);
+            ctx.Builder.AppendSpaces(4);
+            ctx.Builder.Append(rightLineNumber.PadLeft(ctx.LineNumberWidth), Color.Navy);
+            ctx.Builder.AppendSpace();
+            ctx.Builder.Append(Character.VerticalLine);
+
+            if (i == 0)
+            {
+                ctx.Builder.Append(op, color);
+            }
+            else
+            {
+                ctx.Builder.Append(" ");
+            }
+
+            ctx.Builder.Append(Character.VerticalLine);
+
+            var text = new string(piece.Text.Skip(i * maxWidth).Take(maxWidth).ToArray());
+
+            ctx.Builder.Append(text.Replace(" ", "·"), color);
+            ctx.Builder.CommitLine();
+        }
     }
 }
