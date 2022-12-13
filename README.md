@@ -17,7 +17,7 @@ dotnet tool install -g verify.tool
 
 ```
 USAGE:
-    verify review [OPTIONS]
+    dotnet-verify review [OPTIONS]
 
 OPTIONS:
     -h, --help                    Prints help information
@@ -26,14 +26,14 @@ OPTIONS:
 ```
 
 ```
-> dotnet verify review
+> dotnet-verify review
 ```
 
 ## Accept all pending snapshots
 
 ```
 USAGE:
-    verify accept [OPTIONS]
+    dotnet-verify accept [OPTIONS]
 
 OPTIONS:
     -h, --help                Prints help information
@@ -42,14 +42,14 @@ OPTIONS:
 ```
 
 ```
-> dotnet verify accept
+> dotnet-verify accept
 ```
 
 ## Reject all pending snapshots
 
 ```
 USAGE:
-    verify reject [OPTIONS]
+    dotnet-verify reject [OPTIONS]
 
 OPTIONS:
     -h, --help                Prints help information
@@ -58,7 +58,7 @@ OPTIONS:
 ```
 
 ```
-> dotnet verify reject
+> dotnet-verify reject
 ```
 
 ## Building
