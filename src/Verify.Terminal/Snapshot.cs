@@ -6,11 +6,19 @@ public sealed class Snapshot
 {
     public FilePath Received { get; }
     public FilePath Verified { get; }
+    public bool IsRerouted { get; }
 
     public Snapshot(FilePath received)
     {
         Received = received ?? throw new ArgumentNullException(nameof(received));
         Verified = GetVerified(Received);
+    }
+
+    public Snapshot(FilePath received, FilePath verified, bool isRerouted)
+    {
+        Received = received ?? throw new ArgumentNullException(nameof(received));
+        Verified = verified ?? throw new ArgumentNullException(nameof(verified));
+        IsRerouted = isRerouted;
     }
 
     private static FilePath GetVerified(FilePath received)
@@ -22,13 +30,12 @@ public sealed class Snapshot
             while (path.HasExtension)
             {
                 var current = path.GetExtension();
+                path = path.RemoveExtension();
+
                 if (current == ".received")
                 {
-                    path = path.RemoveExtension();
                     break;
                 }
-
-                path = path.RemoveExtension();
             }
 
             return path;
