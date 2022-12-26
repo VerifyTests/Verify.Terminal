@@ -35,19 +35,27 @@ public sealed class SnapshotDiff
         while (index < New.Count)
         {
             var type = New[index].Type;
-            if (type != ChangeType.Unchanged)
-            {
-                start = index;
-            }
-            else
+            if (type == ChangeType.Unchanged)
             {
                 if (start != null)
                 {
+                    // Found an unchanged line after something that
+                    // had been modified or deleted.
                     var rangeStart = Math.Max(0, start.Value - contextLines);
                     var rangeEnd = Math.Min(index + contextLines, New.Count - 1);
                     ranges.Add((rangeStart, rangeEnd));
 
                     start = null;
+                }
+            }
+            else
+            {
+                // Found a modified or deleted line.
+                // If we're not currently processing a
+                // modified or deleted line, set the start index.
+                if (start == null)
+                {
+                    start = index;
                 }
             }
 
