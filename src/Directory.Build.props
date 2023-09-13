@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup Label="Settings">
     <Deterministic>true</Deterministic>
-    <LangVersion>11</LangVersion>
+    <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>embedded</DebugType>
