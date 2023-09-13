@@ -24,7 +24,7 @@ public sealed class SnapshotDiff
         var ranges = new List<(int Start, int Stop)>();
 
         // Only got a new file?
-        if (Old.All(x => x.Type == ChangeType.Imaginary))
+        if (Old.All(_ => _.Type == ChangeType.Imaginary))
         {
             return new List<(int Start, int Stop)>
             {
