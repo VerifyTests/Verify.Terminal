@@ -14,11 +14,11 @@ public sealed class ReportBuilder
 
     public ReportBuilder(IAnsiConsole console, CharacterSet characters)
     {
-        _console = console ?? throw new ArgumentNullException(nameof(console));
+        _console = console.NotNull();
         _buffer = new List<Segment>();
         _lines = new List<SegmentLine>();
 
-        Characters = characters ?? throw new ArgumentNullException(nameof(characters));
+        Characters = characters.NotNull();
     }
 
     public void AppendInlineRenderable(IRenderable renderable)
@@ -37,10 +37,7 @@ public sealed class ReportBuilder
 
     public void Append(string text, Color? color = null, Decoration? decoration = null, int? maxLength = null)
     {
-        if (text is null)
-        {
-            throw new ArgumentNullException(nameof(text));
-        }
+        text.NotNull();
 
         if (maxLength > 0 && (text.Length - 1) > maxLength)
         {

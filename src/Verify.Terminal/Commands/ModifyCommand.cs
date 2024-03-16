@@ -25,8 +25,8 @@ public abstract class ModifyCommand : Command<ModifyCommand.Settings>
 
     protected ModifyCommand(SnapshotFinder snapshotFinder, SnapshotManager snapshotManager)
     {
-        _snapshotFinder = snapshotFinder ?? throw new ArgumentNullException(nameof(snapshotFinder));
-        _snapshotManager = snapshotManager ?? throw new ArgumentNullException(nameof(snapshotManager));
+        _snapshotFinder = snapshotFinder.NotNull();
+        _snapshotManager = snapshotManager.NotNull();
     }
 
     public sealed override int Execute(

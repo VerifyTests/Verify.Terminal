@@ -10,14 +10,14 @@ public sealed class Snapshot
 
     public Snapshot(FilePath received)
     {
-        Received = received ?? throw new ArgumentNullException(nameof(received));
+        Received = received.NotNull();
         Verified = GetVerified(Received);
     }
 
     public Snapshot(FilePath received, FilePath verified, bool isRerouted)
     {
-        Received = received ?? throw new ArgumentNullException(nameof(received));
-        Verified = verified ?? throw new ArgumentNullException(nameof(verified));
+        Received = received.NotNull();
+        Verified = verified.NotNull();
         IsRerouted = isRerouted;
     }
 

@@ -16,10 +16,10 @@ public sealed class ReviewCommand : Command<ReviewCommand.Settings>
         SnapshotManager snapshotManager,
         SnapshotRenderer snapshotRenderer)
     {
-        _snapshotFinder = snapshotFinder ?? throw new ArgumentNullException(nameof(snapshotFinder));
-        _snapshotDiffer = snapshotDiffer ?? throw new ArgumentNullException(nameof(snapshotDiffer));
-        _snapshotManager = snapshotManager ?? throw new ArgumentNullException(nameof(snapshotManager));
-        _snapshotRenderer = snapshotRenderer ?? throw new ArgumentNullException(nameof(snapshotRenderer));
+        _snapshotFinder = snapshotFinder.NotNull();
+        _snapshotDiffer = snapshotDiffer.NotNull();
+        _snapshotManager = snapshotManager.NotNull();
+        _snapshotRenderer = snapshotRenderer.NotNull();
     }
 
     public sealed class Settings : CommandSettings

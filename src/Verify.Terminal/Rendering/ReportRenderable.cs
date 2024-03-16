@@ -9,12 +9,7 @@ internal sealed class ReportRenderable : IRenderable
 
     public ReportRenderable(IEnumerable<SegmentLine> lines)
     {
-        if (lines is null)
-        {
-            throw new ArgumentNullException(nameof(lines));
-        }
-
-        _lines = new List<SegmentLine>(lines);
+        _lines = new List<SegmentLine>(lines.NotNull());
     }
 
     public Measurement Measure(RenderOptions context, int maxWidth)

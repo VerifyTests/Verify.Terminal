@@ -12,9 +12,9 @@ public sealed class SnapshotDiff
 
     public SnapshotDiff(Snapshot snapshot, List<DiffPiece> old, List<DiffPiece> @new)
     {
-        Snapshot = snapshot ?? throw new ArgumentNullException(nameof(snapshot));
-        Old = old ?? throw new ArgumentNullException(nameof(old));
-        New = @new ?? throw new ArgumentNullException(nameof(@new));
+        Snapshot = snapshot.NotNull();
+        Old = old.NotNull();
+        New = @new.NotNull();
     }
 
     public List<(int Start, int Stop)> GetRanges(int contextLines)

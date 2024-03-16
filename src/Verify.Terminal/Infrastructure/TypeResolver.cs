@@ -11,11 +11,6 @@ public sealed class TypeResolver : ITypeResolver
 
     public object? Resolve(Type? type)
     {
-        if (type == null)
-        {
-            throw new ArgumentNullException(nameof(type));
-        }
-
-        return _provider.GetService(type);
+        return _provider.GetService(type.NotNull());
     }
 }

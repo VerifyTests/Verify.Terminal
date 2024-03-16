@@ -15,9 +15,9 @@ public sealed class SnapshotFinder
         IGlobber globber,
         IEnvironment environment)
     {
-        _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
-        _globber = globber ?? throw new ArgumentNullException(nameof(globber));
-        _environment = environment ?? throw new ArgumentNullException(nameof(environment));
+        _fileSystem = fileSystem.NotNull();
+        _globber = globber.NotNull();
+        _environment = environment.NotNull();
     }
 
     public ISet<Snapshot> Find(DirectoryPath? root = null)

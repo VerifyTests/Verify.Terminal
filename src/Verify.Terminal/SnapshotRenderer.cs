@@ -13,8 +13,8 @@ internal sealed class SnapshotRendererContext
 
     public SnapshotRendererContext(SnapshotDiff diff, ReportBuilder builder)
     {
-        Diff = diff ?? throw new ArgumentNullException(nameof(diff));
-        Builder = builder ?? throw new ArgumentNullException(nameof(builder));
+        Diff = diff.NotNull();
+        Builder = builder.NotNull();
         LineNumberWidth = (int)(Math.Log10(Diff.New.Count) + 1);
     }
 }

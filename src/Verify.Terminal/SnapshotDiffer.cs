@@ -11,8 +11,8 @@ public sealed class SnapshotDiffer
 
     public SnapshotDiffer(IFileSystem fileSystem, IEnvironment environment)
     {
-        _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
-        _environment = environment ?? throw new ArgumentNullException(nameof(environment));
+        _fileSystem = fileSystem.NotNull();
+        _environment = environment.NotNull();
     }
 
     public SnapshotDiff Diff(Snapshot snapshot)

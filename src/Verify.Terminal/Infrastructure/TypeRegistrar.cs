@@ -6,7 +6,7 @@ public sealed class TypeRegistrar : ITypeRegistrar
 
     public TypeRegistrar(IServiceCollection services)
     {
-        _services = services ?? throw new ArgumentNullException(nameof(services));
+        _services = services.NotNull();
     }
 
     public void Register(Type service, Type implementation)

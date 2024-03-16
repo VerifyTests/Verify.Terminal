@@ -101,12 +101,7 @@ public abstract class CharacterSet
     /// <returns>A <see cref="CharacterSet"/> that is compatible with the specified <see cref="IAnsiConsole"/>.</returns>
     public static CharacterSet Create(IAnsiConsole console)
     {
-        if (console is null)
-        {
-            throw new ArgumentNullException(nameof(console));
-        }
-
-        return console.Profile.Capabilities.Unicode
+        return console.NotNull().Profile.Capabilities.Unicode
             ? UnicodeCharacterSet.Shared
             : AsciiCharacterSet.Shared;
     }
