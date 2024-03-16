@@ -1,6 +1,3 @@
-using System.ComponentModel;
-using Spectre.IO;
-
 namespace Verify.Terminal.Commands;
 
 public abstract class ModifyCommand : Command<ModifyCommand.Settings>

@@ -1,5 +1,3 @@
-using System.Reflection;
-
 namespace Verify.Terminal.Tests;
 
 public static class EmbeddedResourceReader

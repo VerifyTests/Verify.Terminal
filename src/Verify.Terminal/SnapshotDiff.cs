@@ -1,5 +1,3 @@
-using DiffPlex.DiffBuilder.Model;
-
 namespace Verify.Terminal;
 
 public sealed class SnapshotDiff

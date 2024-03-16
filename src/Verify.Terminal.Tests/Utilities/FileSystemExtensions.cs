@@ -1,5 +1,3 @@
-using Spectre.IO.Testing;
-
 namespace Verify.Terminal.Tests;
 
 internal static class FileSystemExtensions

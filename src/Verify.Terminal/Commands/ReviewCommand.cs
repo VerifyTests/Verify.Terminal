@@ -1,6 +1,3 @@
-using System.ComponentModel;
-using Spectre.IO;
-
 namespace Verify.Terminal.Commands;
 
 public sealed class ReviewCommand : Command<ReviewCommand.Settings>

@@ -1,5 +1,3 @@
-using Spectre.IO;
-
 namespace Verify.Terminal;
 
 public sealed class SnapshotManager

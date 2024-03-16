@@ -1,6 +1,3 @@
-using DiffPlex.DiffBuilder;
-using Spectre.IO;
-
 namespace Verify.Terminal;
 
 public sealed class SnapshotDiffer

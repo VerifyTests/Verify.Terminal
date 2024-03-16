@@ -1,7 +1,3 @@
-using System.ComponentModel;
-using System.Globalization;
-using Spectre.IO;
-
 namespace Verify.Terminal.Infrastructure;
 
 public sealed class DirectoryPathConverter : TypeConverter

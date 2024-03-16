@@ -1,7 +1,3 @@
-using Shouldly;
-using Spectre.IO;
-using Spectre.IO.Testing;
-
 namespace Verify.Terminal.Tests;
 
 public sealed class SnapshotFinderTests
