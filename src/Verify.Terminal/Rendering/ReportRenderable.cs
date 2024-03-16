@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Spectre.Console.Rendering;
 
 namespace Verify.Terminal.Rendering;

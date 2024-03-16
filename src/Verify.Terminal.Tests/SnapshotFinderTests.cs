@@ -1,4 +1,3 @@
-using System.Linq;
 using Shouldly;
 using Spectre.IO;
 using Spectre.IO.Testing;

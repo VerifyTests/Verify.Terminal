@@ -1,4 +1,3 @@
-using System.Linq;
 using DiffPlex.DiffBuilder.Model;
 using Spectre.Console.Rendering;
 using Verify.Terminal.Rendering;

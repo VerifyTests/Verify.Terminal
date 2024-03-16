@@ -1,4 +1,3 @@
-using System.IO;
 using DiffPlex.DiffBuilder;
 using Spectre.IO;
 

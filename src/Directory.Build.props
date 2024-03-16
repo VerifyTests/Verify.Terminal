@@ -9,6 +9,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>false</IsPackable>
     <ResolveAssemblyReferencesSilent>true</ResolveAssemblyReferencesSilent>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <PropertyGroup Label="Deterministic Build" Condition="'$(GITHUB_ACTIONS)' == 'true'">

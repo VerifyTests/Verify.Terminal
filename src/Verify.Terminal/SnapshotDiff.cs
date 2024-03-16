@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using DiffPlex.DiffBuilder.Model;
 
 namespace Verify.Terminal;

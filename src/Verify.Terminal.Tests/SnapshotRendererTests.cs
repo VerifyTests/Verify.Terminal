@@ -1,9 +1,6 @@
-using System.Threading.Tasks;
 using Spectre.Console.Testing;
 using Spectre.IO;
 using Spectre.IO.Testing;
-using VerifyTests;
-using VerifyXunit;
 
 namespace Verify.Terminal.Tests;
 
