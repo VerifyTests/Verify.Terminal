@@ -117,7 +117,7 @@ public abstract class CharacterSet
 /// </summary>
 public class UnicodeCharacterSet : CharacterSet
 {
-    internal static UnicodeCharacterSet Shared { get; } = new UnicodeCharacterSet();
+    internal static UnicodeCharacterSet Shared { get; } = new();
 }
 
 /// <summary>
@@ -125,7 +125,7 @@ public class UnicodeCharacterSet : CharacterSet
 /// </summary>
 public class AsciiCharacterSet : CharacterSet
 {
-    internal static AsciiCharacterSet Shared { get; } = new AsciiCharacterSet();
+    internal static AsciiCharacterSet Shared { get; } = new();
 
     /// <inheritdoc/>
     public override char Anchor { get; } = '┬';
