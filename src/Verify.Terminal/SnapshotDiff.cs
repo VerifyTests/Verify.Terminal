@@ -26,10 +26,7 @@ public sealed class SnapshotDiff
         // Only got a new file?
         if (Old.All(_ => _.Type == ChangeType.Imaginary))
         {
-            return new List<(int Start, int Stop)>
-            {
-                (0, New.Count),
-            };
+            return [(0, New.Count)];
         }
 
         while (index < New.Count)
@@ -97,7 +94,7 @@ public sealed class SnapshotDiff
         {
             if (ranges[i].Start != -1)
             {
-                ans[index] = new int[2] { 0, 0 };
+                ans[index] = [0, 0];
 
                 ans[index][0] = ranges[i].Start;
                 ans[index++][1] = ranges[i].Stop;
