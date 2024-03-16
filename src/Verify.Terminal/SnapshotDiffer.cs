@@ -34,10 +34,8 @@ public sealed class SnapshotDiffer
             return null;
         }
 
-        using (var stream = _fileSystem.File.OpenRead(path))
-        using (var reader = new StreamReader(stream))
-        {
-            return reader.ReadToEnd();
-        }
+        using var stream = _fileSystem.File.OpenRead(path);
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
     }
 }
