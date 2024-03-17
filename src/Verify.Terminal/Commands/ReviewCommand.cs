@@ -54,7 +54,10 @@ public sealed class ReviewCommand : Command<ReviewCommand.Settings>
 
             AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine($"[yellow b]Reviewing[/] [[{index + 1}/{snapshots.Count}]]");
+
+RenderDiff:
             AnsiConsole.Write(_snapshotRenderer.Render(diff, Math.Max(0, settings.ContextLines)));
+            ShowHelp();
 
             switch (ShowPrompt())
             {
@@ -66,6 +69,8 @@ public sealed class ReviewCommand : Command<ReviewCommand.Settings>
                     break;
                 case SnapshotAction.Skip:
                     continue;
+                case SnapshotAction.Unknown:
+                    goto RenderDiff;
             }
 
             if (!last)
@@ -79,40 +84,37 @@ public sealed class ReviewCommand : Command<ReviewCommand.Settings>
 
     private static SnapshotAction ShowPrompt()
     {
+        AnsiConsole.Markup("Accept this change [[[green]a[/],[red]r[/],[yellow]s[/]]]? ");
+
+        var answer = Console.ReadLine()?.ToLowerInvariant();
+
+        return answer switch
+        {
+            "a" => SnapshotAction.Accept,
+            "accept" => SnapshotAction.Accept,
+
+            "r" => SnapshotAction.Reject,
+            "reject" => SnapshotAction.Reject,
+
+            "s" => SnapshotAction.Skip,
+            "skip" => SnapshotAction.Skip,
+
+            _ => SnapshotAction.Unknown,
+        };
+    }
+
+    private static void ShowHelp()
+    {
         var grid = new Grid();
         grid.AddColumn(new GridColumn().PadLeft(4));
         grid.AddColumn(new GridColumn().PadLeft(4));
         grid.AddRow("[[[green]a[/]]]ccept", "[grey]keep the new snapshot[/]");
         grid.AddRow("[[[red]r[/]]]eject", "[grey]keep the old snapshot[/]");
         grid.AddRow("[[[yellow]s[/]]]kip", "[grey]keep both for now[/]");
+
         AnsiConsole.WriteLine();
         AnsiConsole.WriteLine();
         AnsiConsole.Write(grid);
-
-        try
-        {
-            AnsiConsole.Cursor.Hide();
-
-            while (true)
-            {
-                var key = Console.ReadKey(true);
-                var action = key.Key switch
-                {
-                    ConsoleKey.A => SnapshotAction.Accept,
-                    ConsoleKey.R => SnapshotAction.Reject,
-                    ConsoleKey.S => SnapshotAction.Skip,
-                    _ => (SnapshotAction?)null,
-                };
-
-                if (action != null)
-                {
-                    return action.Value;
-                }
-            }
-        }
-        finally
-        {
-            AnsiConsole.Cursor.Show();
-        }
+        AnsiConsole.WriteLine();
     }
 }
