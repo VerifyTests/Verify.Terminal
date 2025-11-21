@@ -1,0 +1,23 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="DiffPlex" Version="1.9.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+    <PackageVersion Include="Spectre.Console" Version="0.54.0" />
+    <PackageVersion Include="Spectre.Console.Cli" Version="0.53.0" />
+    <PackageVersion Include="Spectre.Console.Analyzer" Version="1.0.0" />
+    <PackageVersion Include="Spectre.IO" Version="0.21.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageVersion Include="Shouldly" Version="4.3.0" />
+    <PackageVersion Include="Spectre.Console.Testing" Version="0.54.0" />
+    <PackageVersion Include="Spectre.IO.Testing" Version="0.21.0" />
+    <PackageVersion Include="Spectre.Verify.Extensions" Version="28.16.0" />
+    <PackageVersion Include="Verify.Xunit" Version="31.7.1" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <PackageVersion Include="MinVer" PrivateAssets="All" Version="6.0.0" />
+    <PackageVersion Include="Roslynator.Analyzers" Version="4.14.1" />
+  </ItemGroup>
+</Project>

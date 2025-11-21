@@ -1,3 +1,5 @@
+#:sdk Cake.Sdk@6.0.0
+
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 
@@ -7,7 +9,7 @@ var configuration = Argument("configuration", "Release");
 Task("Build")
     .Does(context => 
 {
-    DotNetBuild("./src/Verify.Terminal.sln", new DotNetBuildSettings {
+    DotNetBuild("./src/Verify.Terminal.slnx", new DotNetBuildSettings {
         Configuration = configuration,
         NoIncremental = context.HasArgument("rebuild"),
         MSBuildSettings = new DotNetMSBuildSettings()
@@ -19,7 +21,7 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(context => 
 {
-    DotNetTest("./src/Verify.Terminal.sln", new DotNetTestSettings {
+    DotNetTest("./src/Verify.Terminal.slnx", new DotNetTestSettings {
         Configuration = configuration,
         NoRestore = true,
         NoBuild = true,
@@ -32,7 +34,7 @@ Task("Pack")
 {
     CleanDirectory("./.artifacts");
 
-    DotNetPack("./src/Verify.Terminal.sln", new DotNetPackSettings {
+    DotNetPack("./src/Verify.Terminal.slnx", new DotNetPackSettings {
         Configuration = configuration,
         NoRestore = true,
         NoBuild = true,
@@ -48,7 +50,7 @@ Task("Publish")
     .IsDependentOn("Pack")
     .Does(context => 
 {
-    var apiKey = Argument<string>("nuget-key", null);
+    var apiKey = Argument<string?>("nuget-key", null);
     if(string.IsNullOrWhiteSpace(apiKey)) {
         throw new CakeException("No NuGet API key was provided.");
     }
@@ -74,4 +76,4 @@ Task("Default")
 ////////////////////////////////////////////////////////////////
 // Execution
 
-RunTarget(target)
+RunTarget(target);

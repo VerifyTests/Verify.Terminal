@@ -1,6 +1,5 @@
 namespace Verify.Terminal.Tests;
 
-[UsesVerify]
 [ExpectationPath("Rendering")]
 public class SnapshotRendererTests
 {

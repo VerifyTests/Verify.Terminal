@@ -27,8 +27,9 @@ public abstract class ModifyCommand : Command<ModifyCommand.Settings>
     }
 
     public sealed override int Execute(
-        [NotNull] CommandContext context,
-        [NotNull] Settings settings)
+        CommandContext context,
+        Settings settings,
+        CancellationToken cancellationToken)
     {
         // Get all snapshots and show a summary
         var snapshots = _snapshotFinder.Find(settings.Root);

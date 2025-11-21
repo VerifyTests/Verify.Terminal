@@ -1,0 +1,13 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Build/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Project Path="Verify.Terminal.Tests/Verify.Terminal.Tests.csproj" />
+  <Project Path="Verify.Terminal/Verify.Terminal.csproj" />
+</Solution>

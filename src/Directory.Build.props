@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup Label="Settings">
     <Deterministic>true</Deterministic>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>14</LangVersion>
     <Nullable>enable</Nullable>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>embedded</DebugType>
@@ -10,6 +10,7 @@
     <IsPackable>false</IsPackable>
     <ResolveAssemblyReferencesSilent>true</ResolveAssemblyReferencesSilent>
     <ImplicitUsings>enable</ImplicitUsings>
+    <MinVerDefaultPreReleaseIdentifiers>preview.0</MinVerDefaultPreReleaseIdentifiers>
   </PropertyGroup>
 
   <PropertyGroup Label="Deterministic Build" Condition="'$(GITHUB_ACTIONS)' == 'true'">
@@ -38,13 +39,8 @@
   </PropertyGroup>
 
   <ItemGroup Label="Package References">
-    <PackageReference Include="MinVer" PrivateAssets="All" Version="4.2.0" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Roslynator.Analyzers" Version="4.6.2">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="MinVer" PrivateAssets="All" />
+    <PackageReference Include="Roslynator.Analyzers" PrivateAssets="All"/>
   </ItemGroup>
 
 </Project>
