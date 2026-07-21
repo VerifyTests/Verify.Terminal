@@ -7,6 +7,10 @@ public sealed class Harness : IDisposable
 
     public Harness(string name)
     {
+        // Verify writes no received maps on a build server, so force it off to keep these scenarios
+        // deterministic locally and on CI. The assembly disables test parallelization, so this is safe.
+        DiffEngine.BuildServerDetector.Detected = false;
+
         _directory = System.IO.Path.Combine(
             System.IO.Path.GetTempPath(),
             "verify-terminal-it",
@@ -16,6 +20,38 @@ public sealed class Harness : IDisposable
     }
 
     public DirectoryPath Directory { get; }
+
+    // Verify writes maps to this test project's obj directory, but a real run scans a root that
+    // contains obj. So copy this scenario's maps under the harness directory to match that layout.
+    // Returns how many were copied, so a test can assert the map path is actually set up rather than
+    // silently falling back.
+    public int PublishMaps()
+    {
+        var copied = 0;
+        var source = System.IO.Path.Combine(
+            AttributeReader.GetIntermediateDirectory(typeof(Harness).Assembly),
+            "VerifyReceived");
+        if (!System.IO.Directory.Exists(source))
+        {
+            return copied;
+        }
+
+        var target = System.IO.Path.Combine(_directory, "obj", "VerifyReceived");
+        System.IO.Directory.CreateDirectory(target);
+
+        foreach (var file in System.IO.Directory.GetFiles(source))
+        {
+            var lines = System.IO.File.ReadAllLines(file);
+            if (lines.Length > 0 &&
+                lines[0].StartsWith(_directory, StringComparison.OrdinalIgnoreCase))
+            {
+                System.IO.File.Copy(file, System.IO.Path.Combine(target, System.IO.Path.GetFileName(file)), true);
+                copied++;
+            }
+        }
+
+        return copied;
+    }
 
     public VerifySettings CreateSettings()
     {

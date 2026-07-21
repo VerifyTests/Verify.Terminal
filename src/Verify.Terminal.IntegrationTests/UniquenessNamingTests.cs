@@ -4,6 +4,8 @@ namespace Verify.Terminal.IntegrationTests;
 // runtime and version; the verified file gets whatever UniqueFor* the test asked for.
 public class UniquenessNamingTests : IntegrationTestBase
 {
+    // Each of these runs twice: once with Verify's received map, which is the path used now, and once
+    // without it, which is the fallback for an older Verify or a build server.
     [Fact]
     public Task Plain_ExistingVerified_IsDetected() =>
         // received `N.Plain.{RaV}` -> verified `N.Plain`
@@ -63,9 +65,10 @@ public class UniquenessNamingTests : IntegrationTestBase
             "N.IgnoreAll.verified.txt");
 
     [Fact]
-    public Task Plain_NewSnapshot_IsAKnownGap() =>
-        // With no verified file to pair against, the finder keeps the runtime suffix, but the correct
-        // verified name has none. TODO: needs the received->verified mapping from VerifyTests/Verify#1809.
+    public Task Plain_NewSnapshot_WithoutMap_CannotBePlaced() =>
+        // Without a map there is no verified file to pair against, so the finder keeps the runtime
+        // suffix while the correct verified name has none. This is the fallback used for snapshots
+        // produced by an older Verify, or on a build server, where no map is written.
         AssertNewSnapshot(
             "Plain",
             _ => { },
@@ -73,14 +76,28 @@ public class UniquenessNamingTests : IntegrationTestBase
             expectRoundTrips: false);
 
     [Fact]
-    public Task UniqueForRuntime_NewSnapshot_IsAKnownGap() =>
-        // The finder cannot know to collapse the received `{RaV}` down to the verified `{Runtime}`.
-        // TODO: needs the received->verified mapping from VerifyTests/Verify#1809.
+    public Task Plain_NewSnapshot_WithMap_IsPlaced() =>
+        AssertNewSnapshotWithMap(
+            "Plain",
+            _ => { },
+            "N.Plain.verified.txt");
+
+    [Fact]
+    public Task UniqueForRuntime_NewSnapshot_WithoutMap_CannotBePlaced() =>
+        // Without a map the finder cannot know to collapse the received `{RaV}` to the verified
+        // `{Runtime}`.
         AssertNewSnapshot(
             "UniqueForRuntime",
             _ => _.UniqueForRuntime(),
             $"N.UniqueForRuntime.{Namer.Runtime}.verified.txt",
             expectRoundTrips: false);
+
+    [Fact]
+    public Task UniqueForRuntime_NewSnapshot_WithMap_IsPlaced() =>
+        AssertNewSnapshotWithMap(
+            "UniqueForRuntime",
+            _ => _.UniqueForRuntime(),
+            $"N.UniqueForRuntime.{Namer.Runtime}.verified.txt");
 
     [Fact]
     public Task UniqueForRuntimeAndVersion_NewSnapshot_Succeeds() =>

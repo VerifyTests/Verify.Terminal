@@ -6,6 +6,10 @@ public sealed class SnapshotFinder
     // `Core` is only emitted by older versions of Verify.
     private static readonly string[] _runtimes = ["DotNet", "Net", "Mono", "Core"];
 
+    // Windows paths are case insensitive.
+    private static readonly StringComparison _pathComparison =
+        OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+
     private readonly IGlobber _globber;
     private readonly IEnvironment _environment;
 
@@ -22,9 +26,13 @@ public sealed class SnapshotFinder
         root ??= _environment.WorkingDirectory;
         root = root.MakeAbsolute(_environment);
 
-        // The verified file name cannot be reliably reconstructed from the received file name (see
-        // https://github.com/VerifyTests/Verify/pull/1807), so instead match each received file
-        // against the verified files that actually exist alongside it.
+        // Verify records the verified file each received file belongs to, so prefer that over any
+        // guess. See https://github.com/VerifyTests/Verify/issues/1809
+        var maps = ReceivedMaps.Read(root.FullPath);
+
+        // Older versions of Verify wrote no maps, and a map is not written on a build server, so fall
+        // back to matching each received file against the verified files that exist alongside it. The
+        // verified name cannot be reliably reconstructed from the received name, so this is a guess.
         var verifiedByDirectory = Match(root, "**/*.verified.*", "verified")
             .GroupBy(_ => _.Directory, StringComparer.Ordinal)
             .ToDictionary(_ => _.Key, _ => _.ToList(), StringComparer.Ordinal);
@@ -32,7 +40,7 @@ public sealed class SnapshotFinder
         var result = new HashSet<Snapshot>();
         foreach (var received in Match(root, "**/*.received.*", "received"))
         {
-            var (verifiedPath, isRerouted) = GetVerified(received, verifiedByDirectory);
+            var (verifiedPath, isRerouted) = GetVerified(received, maps, verifiedByDirectory);
             result.Add(new Snapshot(received.Path, verifiedPath, isRerouted));
         }
 
@@ -47,8 +55,17 @@ public sealed class SnapshotFinder
 
     private (FilePath VerifiedPath, bool IsRerouted) GetVerified(
         ParsedName received,
+        ReceivedMaps maps,
         Dictionary<string, List<ParsedName>> verifiedByDirectory)
     {
+        // Verify recorded the pair, so there is nothing to work out.
+        if (maps.TryGetVerified(received.Path.FullPath, out var mapped))
+        {
+            var verified = new FilePath(mapped);
+            var isRerouted = !verified.FullPath.Equals(LiteralVerified(received).FullPath, _pathComparison);
+            return (verified, isRerouted);
+        }
+
         var candidates = verifiedByDirectory.TryGetValue(received.Directory, out var inDirectory)
             ? inDirectory.Where(_ => _.Extension == received.Extension).ToList()
             : [];
