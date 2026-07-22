@@ -35,7 +35,7 @@ public abstract class IntegrationTestBase
     // A scenario where the correct verified file exists, so the finder should pair the received file
     // with it (rerouting when the names differ) and an accept round-trips cleanly.
     // Run against both, since the map is how Verify behaves now, while the fallback still applies to
-    // snapshots from an older Verify or from a build server. Both have to reach the same verified file.
+    // snapshots from an older Verify, or when obj is not scanned. Both have to reach the same file.
     // Looped rather than a [Theory], since a test method parameter would be appended to the snapshot
     // name by Verify and change the very names under assertion.
     protected async Task AssertExistingVerifiedIsDetected(

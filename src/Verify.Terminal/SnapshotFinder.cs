@@ -30,9 +30,10 @@ public sealed class SnapshotFinder
         // guess. See https://github.com/VerifyTests/Verify/issues/1809
         var maps = ReceivedMaps.Read(root.FullPath);
 
-        // Older versions of Verify wrote no maps, and a map is not written on a build server, so fall
-        // back to matching each received file against the verified files that exist alongside it. The
-        // verified name cannot be reliably reconstructed from the received name, so this is a guess.
+        // A map is not always available. Older versions of Verify wrote none, and obj may not be under
+        // the scanned root, or may have been removed since the test run. So fall back to matching each
+        // received file against the verified files that exist alongside it. The verified name cannot be
+        // reliably reconstructed from the received name, so this is a guess.
         var verifiedByDirectory = Match(root, "**/*.verified.*", "verified")
             .GroupBy(_ => _.Directory, StringComparer.Ordinal)
             .ToDictionary(_ => _.Key, _ => _.ToList(), StringComparer.Ordinal);

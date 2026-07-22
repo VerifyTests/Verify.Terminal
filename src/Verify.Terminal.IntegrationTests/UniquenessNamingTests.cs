@@ -5,7 +5,7 @@ namespace Verify.Terminal.IntegrationTests;
 public class UniquenessNamingTests : IntegrationTestBase
 {
     // Each of these runs twice: once with Verify's received map, which is the path used now, and once
-    // without it, which is the fallback for an older Verify or a build server.
+    // without it, which is the fallback for an older Verify, or when obj is not scanned.
     [Fact]
     public Task Plain_ExistingVerified_IsDetected() =>
         // received `N.Plain.{RaV}` -> verified `N.Plain`
@@ -67,8 +67,8 @@ public class UniquenessNamingTests : IntegrationTestBase
     [Fact]
     public Task Plain_NewSnapshot_WithoutMap_CannotBePlaced() =>
         // Without a map there is no verified file to pair against, so the finder keeps the runtime
-        // suffix while the correct verified name has none. This is the fallback used for snapshots
-        // produced by an older Verify, or on a build server, where no map is written.
+        // suffix while the correct verified name has none. This is the fallback used when no map is
+        // available, ie. an older Verify, or an obj that is not scanned.
         AssertNewSnapshot(
             "Plain",
             _ => { },

@@ -28,7 +28,7 @@ public class ParameterNamingTests : IntegrationTestBase
             expectedVerified: "N.Params_a=1.verified.txt");
 
     // Run against both the map, which is how Verify behaves now, and the fallback, which still applies
-    // to an older Verify or a build server. Looped rather than another [InlineData], since an extra
+    // to an older Verify, or when obj is not scanned. Looped rather than another [InlineData], since an extra
     // test method parameter would be appended to the snapshot name by Verify.
     async Task AssertParametersAreDetected(string name, string a, string b, string ignored, string expectedVerified)
     {
@@ -145,7 +145,7 @@ public class ParameterNamingTests : IntegrationTestBase
 
         // A non-trailing ignored parameter cannot be reconstructed from the received name, so the
         // accept lands at the wrong verified file and Verify still fails. This is only reachable
-        // without a map, ie. an older Verify or a build server. See the WithMap case above.
+        // without a map, ie. an older Verify, or when obj is not scanned. See the WithMap case above.
         (await Verifies(Settings())).ShouldBeFalse();
     }
 }

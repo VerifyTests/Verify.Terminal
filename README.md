@@ -93,7 +93,7 @@ For the records to be found, the working directory has to contain the `obj` dire
 Where no record exists, the tool falls back to matching each received file against the verified files that sit next to it. This applies to:
 
  * snapshots produced by a Verify older than 31.27.0
- * snapshots produced on a build server, where Verify writes no records
+ * an `obj` directory that is not under the working directory, as above, or that has been removed since the test run
 
 The fallback handles the common cases, including multi targeting, `UniqueFor*`, and a trailing ignored parameter. It cannot cover everything though:
 
