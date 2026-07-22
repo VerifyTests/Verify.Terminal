@@ -1,4 +1,4 @@
-# Verify.Terminal
+# <img src="/src/icon.png" height="30px"> Verify.Terminal
 
 [![NuGet Status](https://img.shields.io/nuget/v/Verify.Tool.svg)](https://www.nuget.org/packages/Verify.Tool/)
 

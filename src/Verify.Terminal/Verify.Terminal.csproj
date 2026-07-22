@@ -7,9 +7,8 @@
     <PackAsTool>true</PackAsTool>
     <PackageId>Verify.Tool</PackageId>
     <ToolCommandName>dotnet-verify</ToolCommandName>
-  </PropertyGroup>
-
-  <PropertyGroup Label="Package Information">
+    <PackageIcon>icon.png</PackageIcon>
+    <None Include="$(SolutionDir)icon.png" Pack="true" PackagePath="\"/>
     <Description>A dotnet tool for managing Verify snapshots.</Description>
   </PropertyGroup>
 
@@ -18,10 +17,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Spectre.Console" />
     <PackageReference Include="Spectre.Console.Cli" />
-    <PackageReference Include="Spectre.Console.Analyzer">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Spectre.Console.Analyzer" PrivateAssets="all" />
     <PackageReference Include="Spectre.IO" />
   </ItemGroup>
 

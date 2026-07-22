@@ -8,14 +8,10 @@
     <None Remove="Data\second.old" />
     <None Remove="Data\simple.new" />
     <None Remove="Data\simple.old" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Data\Second\new" />
     <EmbeddedResource Include="Data\Second\old" />
     <EmbeddedResource Include="Data\First\new" />
     <EmbeddedResource Include="Data\First\old" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Shouldly" />
     <PackageReference Include="Spectre.Console.Testing" />
@@ -23,12 +19,7 @@
     <PackageReference Include="Spectre.Verify.Extensions" />
     <PackageReference Include="Verify.XunitV3" />
     <PackageReference Include="xunit.v3" />
-    <PackageReference Include="xunit.runner.visualstudio">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
     <ProjectReference Include="..\Verify.Terminal\Verify.Terminal.csproj" />
   </ItemGroup>
 </Project>
