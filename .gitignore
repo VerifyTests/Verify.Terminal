@@ -8,6 +8,9 @@
 /.artifacts/
 /[Tt]ools/
 
+# Verify
+*.received.*
+
 # Visual Studio
 .vs/
 .vscode/
