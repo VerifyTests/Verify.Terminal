@@ -231,7 +231,7 @@ public sealed class SnapshotFinderTests
         result.Verified.FullPath.ShouldBe("/Working/Foo.DotNet11_0#00.verified.txt");
     }
 
-    private static Snapshot Find(params string[] files)
+    private static Snapshot? Find(params string[] files)
     {
         var environment = new FakeEnvironment(Spectre.IO.PlatformFamily.Linux);
         var filesystem = new FakeFileSystem(environment);

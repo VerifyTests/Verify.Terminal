@@ -30,7 +30,7 @@ public class ParameterNamingTests : IntegrationTestBase
     // Run against both the map, which is how Verify behaves now, and the fallback, which still applies
     // to an older Verify, or when obj is not scanned. Looped rather than another [InlineData], since an extra
     // test method parameter would be appended to the snapshot name by Verify.
-    async Task AssertParametersAreDetected(string name, string a, string b, string ignored, string expectedVerified)
+    async Task AssertParametersAreDetected(string name, string a, string b, string? ignored, string expectedVerified)
     {
         await Run(withMap: true);
         await Run(withMap: false);

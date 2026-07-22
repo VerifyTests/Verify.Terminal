@@ -69,7 +69,7 @@ public sealed class Harness : IDisposable
     public IReadOnlyList<string> ReceivedFileNames() =>
         System.IO.Directory
             .GetFiles(_directory, "*.received.*")
-            .Select(System.IO.Path.GetFileName)
+            .Select(_ => System.IO.Path.GetFileName(_))
             .ToList();
 
     // Runs the real SnapshotFinder (real globber, real filesystem) over the temp directory.
