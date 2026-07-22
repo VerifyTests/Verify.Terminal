@@ -19,6 +19,7 @@
     <PackageReference Include="Spectre.Console.Cli" />
     <PackageReference Include="Spectre.Console.Analyzer" PrivateAssets="all" />
     <PackageReference Include="Spectre.IO" />
+    <PackageReference Include="Verify.ExceptionParsing" />
   </ItemGroup>
 
 </Project>

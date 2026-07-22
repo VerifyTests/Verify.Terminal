@@ -8,6 +8,7 @@
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
   </Folder>
+  <Project Path="Verify.Terminal.IntegrationTests/Verify.Terminal.IntegrationTests.csproj" />
   <Project Path="Verify.Terminal.Tests/Verify.Terminal.Tests.csproj" />
   <Project Path="Verify.Terminal/Verify.Terminal.csproj" />
 </Solution>
