@@ -80,23 +80,23 @@ public class SnapshotRenderer
                 if (@new.Type == ChangeType.Modified)
                 {
                     // Modified lines
-                    RenderLine(ctx, old, index, '-', Color.Red, true, false);
-                    RenderLine(ctx, @new, index, '+', Color.Green, false, true);
+                    RenderLine(ctx, old, old.Position, null, '-', Color.Red);
+                    RenderLine(ctx, @new, null, @new.Position, '+', Color.Green);
                 }
                 else if (@new.Type == ChangeType.Inserted)
                 {
                     // Inserted
-                    RenderLine(ctx, @new, index, '+', Color.Green, false, true);
+                    RenderLine(ctx, @new, null, @new.Position, '+', Color.Green);
                 }
                 else if (@new.Type == ChangeType.Imaginary)
                 {
-                    // Modified lines
-                    RenderLine(ctx, old, index, '-', Color.Red, true, false);
+                    // Deleted
+                    RenderLine(ctx, old, old.Position, null, '-', Color.Red);
                 }
                 else
                 {
                     // Unchanged
-                    RenderLine(ctx, @new, index, ' ', Color.Grey, true, true);
+                    RenderLine(ctx, @new, old.Position, @new.Position, ' ', Color.Grey);
                 }
             }
 
@@ -114,14 +114,18 @@ public class SnapshotRenderer
 
     private void RenderLine(
         SnapshotRendererContext ctx, DiffPiece piece,
-        int index, char op, Color color,
-        bool showLeft, bool showRight)
+        int? leftPosition, int? rightPosition, char op, Color color)
     {
-        var leftLineNumber = showLeft ? (index + 1).ToString() : string.Empty;
-        var rightLineNumber = showRight ? (index + 1).ToString() : string.Empty;
+        // The positions come from the snapshots themselves rather than from the
+        // index into the aligned diff, which drifts once a line is added or removed.
+        var leftLineNumber = leftPosition?.ToString() ?? string.Empty;
+        var rightLineNumber = rightPosition?.ToString() ?? string.Empty;
 
         var maxWidth = _console.Profile.Width - (4 + ctx.LineNumberWidth + 4 + ctx.LineNumberWidth + 1 + 1 + 1 + 1);
-        var pieces = (piece.Text.Length / maxWidth) + ((piece.Text.Length % maxWidth) == 0 ? 0 : 1);
+
+        // An empty line still occupies a single row. Without the minimum of one,
+        // added or removed blank lines would not be rendered at all.
+        var pieces = Math.Max(1, (piece.Text.Length / maxWidth) + ((piece.Text.Length % maxWidth) == 0 ? 0 : 1));
 
         for (var i = 0; i < pieces; i++)
         {

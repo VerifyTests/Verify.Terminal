@@ -12,6 +12,10 @@
     <EmbeddedResource Include="Data\Second\old" />
     <EmbeddedResource Include="Data\First\new" />
     <EmbeddedResource Include="Data\First\old" />
+    <EmbeddedResource Include="Data\Third\new" />
+    <EmbeddedResource Include="Data\Third\old" />
+    <EmbeddedResource Include="Data\Fourth\new" />
+    <EmbeddedResource Include="Data\Fourth\old" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Shouldly" />
     <PackageReference Include="Spectre.Console.Testing" />
