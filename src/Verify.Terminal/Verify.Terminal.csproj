@@ -8,11 +8,11 @@
     <PackageId>Verify.Tool</PackageId>
     <ToolCommandName>dotnet-verify</ToolCommandName>
     <PackageIcon>icon.png</PackageIcon>
-    <None Include="$(SolutionDir)icon.png" Pack="true" PackagePath="\"/>
     <Description>A dotnet tool for managing Verify snapshots.</Description>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\icon.png" Pack="true" PackagePath="\" />
     <PackageReference Include="DiffPlex" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Spectre.Console" />
