@@ -86,9 +86,33 @@ flowchart TD
     Recorded -->|no| SameName
 ```
 
-Verify records the pairing. From [Verify 31.27.0](https://github.com/VerifyTests/Verify/issues/1809), whenever a received file is left on disk, Verify writes the verified path it belongs to into the `obj` directory of the test project. This tool reads those records, so the pairing is exact rather than guessed.
+### Recorded pairings
 
-For the records to be found, the working directory has to contain the `obj` directory, which is the case when running from a project or repository root. Pointing `-w` at a snapshot subdirectory alone means they are not seen.
+From [Verify 31.27.0](https://github.com/VerifyTests/Verify/issues/1809), whenever a received file is left on disk, Verify records the verified file it belongs to. This tool reads those records, so the pairing is exact rather than guessed.
+
+A record is a two line text file, the received path then the verified path, both absolute:
+
+```
+C:\code\MyProject\Tests\MyTests.MyTest.DotNet11_0.received.txt
+C:\code\MyProject\Tests\MyTests.MyTest.verified.txt
+```
+
+Records go in the intermediate (`obj`) directory of the test project rather than beside the snapshot, so they neither clutter the directory holding the code and snapshots nor get picked up by the `*.received.*` glob used to find snapshots:
+
+```
+{IntermediateDirectory}/VerifyReceived/{hash}.txt
+```
+
+ * `{IntermediateDirectory}` is the project's `IntermediateOutputPath`, captured at build time by Verify's MSBuild props and emitted into the test assembly as a `Verify.IntermediateDirectory` metadata attribute. It is per configuration and per target framework, so eg `obj/Debug/net10.0/`. A project that does not consume those props has no directory to write to, and so records nothing.
+ * `{hash}` is an FNV-1a hash of the received path, as 16 hex characters. Deriving the name from the path means re running a test overwrites its record rather than accumulating one per run.
+
+Since a record is only written when a received file is left on disk, none are written by a passing test, by [AutoVerify](https://github.com/VerifyTests/Verify/blob/main/docs/autoverify.md), which accepts in process, or on a [build server](https://github.com/VerifyTests/Verify/blob/main/docs/build-server.md), where nothing consumes them and the recorded paths do not apply off the agent.
+
+Records outlive the received files they describe, for example once a snapshot has been accepted or its test deleted. Stale records are ignored rather than acted on, since a record is only used when the received file it names still exists. They are cleared whenever `obj` is.
+
+To find the records, the tool scans down from the working directory for `VerifyReceived` directories, skipping `.git` and `node_modules`. So the working directory has to contain the `obj` directory, which is the case when running from a project or repository root. Pointing `-w` at a snapshot subdirectory alone means the records are not seen.
+
+### Fallback
 
 Where no record exists, the tool falls back to matching each received file against the verified files that sit next to it. This applies to:
 
