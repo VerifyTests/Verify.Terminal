@@ -34,8 +34,10 @@ public sealed class SnapshotDiff
                 {
                     // Found an unchanged line after something that
                     // had been modified or deleted.
+                    // Stop is exclusive, so it must be allowed to reach New.Count,
+                    // otherwise the last line of the snapshot is never rendered.
                     var rangeStart = Math.Max(0, start.Value - contextLines);
-                    var rangeEnd = Math.Min(index + contextLines, New.Count - 1);
+                    var rangeEnd = Math.Min(index + contextLines, New.Count);
                     ranges.Add((rangeStart, rangeEnd));
 
                     start = null;
@@ -53,6 +55,13 @@ public sealed class SnapshotDiff
             }
 
             index++;
+        }
+
+        if (start != null)
+        {
+            // The snapshot ended while still processing a modified or deleted
+            // line, so there is no trailing unchanged line to close the range.
+            ranges.Add((Math.Max(0, start.Value - contextLines), New.Count));
         }
 
         if (ranges.Count == 0)
