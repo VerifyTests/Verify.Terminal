@@ -7,6 +7,8 @@ public class SnapshotRendererTests
     [Expectation("Render")]
     [InlineData("First")]
     [InlineData("Second")]
+    [InlineData("Third")]
+    [InlineData("Fourth")]
     public Task Should_Render_Correctly(string scenario)
     {
         // Given
