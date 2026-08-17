@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
@@ -16,14 +17,12 @@
     <EmbeddedResource Include="Data\Third\old" />
     <EmbeddedResource Include="Data\Fourth\new" />
     <EmbeddedResource Include="Data\Fourth\old" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Shouldly" />
     <PackageReference Include="Spectre.Console.Testing" />
     <PackageReference Include="Spectre.IO.Testing" />
     <PackageReference Include="Spectre.Verify.Extensions" />
     <PackageReference Include="Verify.XunitV3" />
     <PackageReference Include="xunit.v3" />
-    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
     <ProjectReference Include="..\Verify.Terminal\Verify.Terminal.csproj" />
   </ItemGroup>
 </Project>
