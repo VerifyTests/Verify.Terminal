@@ -74,7 +74,7 @@ public class ParameterNamingTests : IntegrationTestBase
             System.IO.Path.GetFileName(snapshot.Verified.FullPath).ShouldBe(correctVerified, because);
             snapshot.IsRerouted.ShouldBeTrue(because);
 
-            harness.Accept(snapshot).ShouldBeTrue(because);
+            harness.Accept(snapshot).Succeeded.ShouldBeTrue(because);
             (await Verifies(Settings())).ShouldBeTrue(because);
         }
     }
@@ -106,7 +106,7 @@ public class ParameterNamingTests : IntegrationTestBase
         System.IO.Path.GetFileName(snapshot.Verified.FullPath).ShouldBe(correctVerified);
         snapshot.IsRerouted.ShouldBeTrue();
 
-        harness.Accept(snapshot).ShouldBeTrue();
+        harness.Accept(snapshot).Succeeded.ShouldBeTrue();
         (await Verifies(Settings())).ShouldBeTrue();
     }
 
@@ -141,7 +141,7 @@ public class ParameterNamingTests : IntegrationTestBase
         System.IO.Path.GetFileName(snapshot.Verified.FullPath).ShouldBe(literal);
         snapshot.IsRerouted.ShouldBeFalse();
 
-        harness.Accept(snapshot).ShouldBeTrue();
+        harness.Accept(snapshot).Succeeded.ShouldBeTrue();
 
         // A non-trailing ignored parameter cannot be reconstructed from the received name, so the
         // accept lands at the wrong verified file and Verify still fails. This is only reachable

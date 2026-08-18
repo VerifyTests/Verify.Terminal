@@ -87,7 +87,7 @@ public abstract class IntegrationTestBase
             var literal = received.Replace(".received.", ".verified.");
             snapshot.IsRerouted.ShouldBe(correctVerified != literal, because);
 
-            harness.Accept(snapshot).ShouldBeTrue(because);
+            harness.Accept(snapshot).Succeeded.ShouldBeTrue(because);
 
             // The received value now lives at the correct verified name, so Verify passes.
             (await Verifies(Settings())).ShouldBeTrue(because);
@@ -126,7 +126,7 @@ public abstract class IntegrationTestBase
         System.IO.Path.GetFileName(snapshot.Verified.FullPath).ShouldBe(literal);
         snapshot.IsRerouted.ShouldBeFalse();
 
-        harness.Accept(snapshot).ShouldBeTrue();
+        harness.Accept(snapshot).Succeeded.ShouldBeTrue();
 
         (await Verifies(Settings())).ShouldBe(expectRoundTrips);
     }
@@ -161,7 +161,7 @@ public abstract class IntegrationTestBase
         System.IO.Path.GetFileName(snapshot.Verified.FullPath).ShouldBe(correctVerified);
         snapshot.IsRerouted.ShouldBe(correctVerified != received.Replace(".received.", ".verified."));
 
-        harness.Accept(snapshot).ShouldBeTrue();
+        harness.Accept(snapshot).Succeeded.ShouldBeTrue();
 
         // The accept landed where Verify expects, so the next run passes.
         (await Verifies(Settings())).ShouldBeTrue();
