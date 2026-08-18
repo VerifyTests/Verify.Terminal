@@ -11,14 +11,25 @@ public sealed class SnapshotDiffer
         _environment = environment.NotNull();
     }
 
-    public SnapshotDiff Diff(Snapshot snapshot)
+    public SnapshotDiff Diff(ISnapshot snapshot)
     {
-        var oldText = ReadText(snapshot.Verified) ?? string.Empty;
-        var newText = ReadText(snapshot.Received) ?? string.Empty;
+        var (oldText, newText) = Text(snapshot);
 
         var diff = SideBySideDiffBuilder.Instance.BuildDiffModel(oldText, newText, false);
 
         return new SnapshotDiff(snapshot, diff.OldText.Lines, diff.NewText.Lines);
+    }
+
+    private (string Old, string New) Text(ISnapshot snapshot)
+    {
+        return snapshot.NotNull() switch
+        {
+            Snapshot file => (ReadText(file.Verified) ?? string.Empty, ReadText(file.Received) ?? string.Empty),
+            // An inline snapshot is held in memory: its expected text is the literal in the source,
+            // which the patch already carries, so there is nothing to read to compare the two.
+            InlineSnapshot inline => (inline.Expected, inline.Received),
+            _ => throw new InvalidOperationException($"Unknown snapshot type: {snapshot.GetType().Name}"),
+        };
     }
 
     private string? ReadText(FilePath path)

@@ -35,18 +35,24 @@ public class SnapshotRenderer
         var marginWidth = (ctx.LineNumberWidth * 2) + 8 + 1;
         var lineNumberWidth = (int)(Math.Log10(diff.New.Count) + 1);
 
-        // Filename
+        // Header
         ctx.Builder.AppendRepeated(Character.HorizontalLine, _console.Profile.Width);
         ctx.Builder.CommitLine();
-        ctx.Builder.AppendInlineRenderable(new TextPath(diff.Snapshot.Received.GetFilename().FullPath));
 
-        if (diff.Snapshot.IsRerouted)
+        foreach (var (_, first, _, header) in diff.Snapshot.Headers.Enumerate())
         {
-            ctx.Builder.CommitLine();
-            ctx.Builder.AppendInlineRenderable(new TextPath(diff.Snapshot.Verified.GetFilename().FullPath));
+            if (!first)
+            {
+                ctx.Builder.CommitLine();
+            }
 
-            ctx.Builder.AppendSpace();
-            ctx.Builder.Append("(rerouted)", Color.Yellow);
+            ctx.Builder.AppendInlineRenderable(new TextPath(header.Path));
+
+            if (header.Note != null)
+            {
+                ctx.Builder.AppendSpace();
+                ctx.Builder.Append(header.Note, Color.Yellow);
+            }
         }
 
         ctx.Builder.CommitLine();

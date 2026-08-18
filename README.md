@@ -63,9 +63,43 @@ OPTIONS:
 > dotnet verify reject
 ```
 
+## Inline snapshots
+
+An [inline snapshot](https://github.com/VerifyTests/Verify/blob/main/docs/inline-snapshots.md) keeps its expected text in the test source, as a string literal beside the code that produces it, instead of in a `.verified.` file. `review`, `accept` and `reject` all handle them beside file snapshots, so a run that produced both is dealt with in one pass. Accepting one rewrites the literal in the source file rather than moving a file, and `review` shows it as `(inline)`, headed by the call site rather than by a file name:
+
+```
+────────────────────────────────────────────────────────────────────────
+SampleTests.cs:42 (inline)
+────────────────────────────────────────────────────────────────────────
+-old snapshot
++new snapshot
+```
+
+### Where pending inline snapshots come from
+
+Nothing is written to disk for a pending inline snapshot. The test run hands its patch to whichever process owns the inline queue, and only stages it under `obj/VerifyInline/` when nothing answers. So both are read:
+
+```mermaid
+flowchart TD
+    Start["A pending inline snapshot"] --> Owner{"Does a process own<br>the inline queue?"}
+    Owner -->|yes| Queued["Read from the queue.<br>Accepting asks the owner to apply it"]
+    Owner -->|no| Staged["Read from obj/VerifyInline/.<br>Accepting applies the patch here"]
+```
+
+Accepting through the owner rather than here is what keeps one writer per source file, and leaves the tray, the viewer and this tool agreeing about what is still pending. The owner is [DiffEngineTray](https://github.com/VerifyTests/DiffEngine/blob/main/docs/tray.md) when one is running, and otherwise the [DiffEngineViewer](https://github.com/VerifyTests/DiffEngine/blob/main/docs/viewer.md) a test run launched.
+
+Staged snapshots live in the intermediate (`obj`) directory of the test project, so, as with [recorded pairings](#recorded-pairings), the working directory has to contain `obj`.
+
+### Snapshots that cannot be accepted
+
+A snapshot that refuses says why, and does not stop the rest of the run being processed. Two cases:
+
+ * **Conflicting snapshots.** A multi targeted run whose frameworks disagreed about the content has one snapshot per framework for the same call site. Only the first can be shown, so accepting is refused rather than picking between them silently. Resolve it in DiffEngineViewer, or re-run the tests so the frameworks agree.
+ * **The call site could not be found.** The literal is located by content, so an edit that moves it is fine, but one that changes or removes the `Snapshot(...)` call means the patch no longer matches anything. Re-run the test and accept again.
+
 ## How snapshots are paired
 
-Accepting a snapshot means moving a `.received.` file over the `.verified.` file it belongs to. Those two names are not always the same, so the tool has to work out which verified file each received file maps to. For example, a multi targeted project puts the runtime and version on the received name only:
+Accepting a file snapshot means moving a `.received.` file over the `.verified.` file it belongs to. Those two names are not always the same, so the tool has to work out which verified file each received file maps to. For example, a multi targeted project puts the runtime and version on the received name only:
 
 ```
 MyTests.MyTest.DotNet11_0.received.txt  ->  MyTests.MyTest.verified.txt

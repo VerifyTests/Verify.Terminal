@@ -2,7 +2,7 @@ namespace Verify.Terminal.Commands;
 
 public abstract class ModifyCommand : Command<ModifyCommand.Settings>
 {
-    private readonly SnapshotFinder _snapshotFinder;
+    private readonly SnapshotLocator _snapshotLocator;
     private readonly SnapshotManager _snapshotManager;
 
     public abstract string Verb { get; }
@@ -20,9 +20,9 @@ public abstract class ModifyCommand : Command<ModifyCommand.Settings>
         public bool NoPrompt { get; set; }
     }
 
-    protected ModifyCommand(SnapshotFinder snapshotFinder, SnapshotManager snapshotManager)
+    protected ModifyCommand(SnapshotLocator snapshotLocator, SnapshotManager snapshotManager)
     {
-        _snapshotFinder = snapshotFinder.NotNull();
+        _snapshotLocator = snapshotLocator.NotNull();
         _snapshotManager = snapshotManager.NotNull();
     }
 
@@ -32,7 +32,7 @@ public abstract class ModifyCommand : Command<ModifyCommand.Settings>
         CancellationToken cancellationToken)
     {
         // Get all snapshots and show a summary
-        var snapshots = _snapshotFinder.Find(settings.Root);
+        var snapshots = _snapshotLocator.Find(settings.Root);
         if (snapshots.Count == 0)
         {
             AnsiConsole.MarkupLine("[yellow]No snapshots found.[/]");
@@ -46,18 +46,28 @@ public abstract class ModifyCommand : Command<ModifyCommand.Settings>
             return 1;
         }
 
-        // Process snapshots
+        // Process snapshots. One that refuses does not stop the rest: an inline snapshot whose
+        // frameworks disagreed is skipped rather than picked between, and holding up every other
+        // snapshot behind it would mean one unresolvable snapshot blocking the whole command.
+        var failed = 0;
         foreach (var snapshot in snapshots)
         {
-            if (!_snapshotManager.Process(snapshot, Action))
+            var result = _snapshotManager.Process(snapshot, Action);
+            if (!result.Succeeded)
             {
-                AnsiConsole.MarkupLineInterpolated(
-                    $"[red]Error:[/] An error occured while processing snapshot: {snapshot.Received}");
-                return 2;
+                failed++;
+                AnsiConsole.Console.ShowSnapshotFailure(snapshot, Action, result);
             }
         }
 
-        return 0;
+        if (failed == 0)
+        {
+            return 0;
+        }
+
+        AnsiConsole.MarkupLineInterpolated(
+            $"[red]{failed} of {snapshots.Count} snapshot(s) could not be processed.[/]");
+        return 2;
     }
 
     private static bool Proceed(Settings settings, string question)

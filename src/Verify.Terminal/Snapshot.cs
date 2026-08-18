@@ -1,10 +1,29 @@
 namespace Verify.Terminal;
 
-public sealed class Snapshot
+public sealed class Snapshot : ISnapshot
 {
     public FilePath Received { get; }
     public FilePath Verified { get; }
     public bool IsRerouted { get; }
+
+    public string Name => Received.FullPath;
+
+    public IReadOnlyList<SnapshotHeader> Headers
+    {
+        get
+        {
+            var received = new SnapshotHeader(Received.GetFilename().FullPath);
+
+            // The verified name is only worth a line of its own when it is not the one the received
+            // name reads as, which is exactly when the snapshot was rerouted.
+            if (!IsRerouted)
+            {
+                return [received];
+            }
+
+            return [received, new(Verified.GetFilename().FullPath, "(rerouted)")];
+        }
+    }
 
     public Snapshot(FilePath received)
     {

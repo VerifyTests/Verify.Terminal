@@ -28,7 +28,12 @@ public static class Program
         services.AddSingleton<IEnvironment, Spectre.IO.Environment>();
         services.AddSingleton<IGlobber, Globber>();
 
+        services.AddSingleton<IInlineQueueOwner, InlineQueueOwner>();
+
         services.AddSingleton<SnapshotFinder>();
+        services.AddSingleton<InlineSnapshotFinder>();
+        services.AddSingleton<SnapshotLocator>();
+        services.AddSingleton<InlineSnapshotManager>();
         services.AddSingleton<SnapshotManager>();
         services.AddSingleton<SnapshotDiffer>();
         services.AddSingleton<SnapshotRenderer>();

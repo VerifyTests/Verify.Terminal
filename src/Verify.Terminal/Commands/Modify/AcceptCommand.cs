@@ -6,9 +6,9 @@ public sealed class AcceptCommand : ModifyCommand
     public override SnapshotAction Action { get; } = SnapshotAction.Accept;
 
     public AcceptCommand(
-        SnapshotFinder snapshotFinder,
+        SnapshotLocator snapshotLocator,
         SnapshotManager snapshotManager)
-            : base(snapshotFinder, snapshotManager)
+            : base(snapshotLocator, snapshotManager)
     {
     }
 }

@@ -52,7 +52,16 @@ public sealed class SnapshotFinder
         _globber
             .Match(pattern, new GlobberSettings { Root = root })
             .OfType<FilePath>()
+            .Where(_ => !IsInlineStaging(_))
             .Select(_ => ParsedName.Parse(_, marker));
+
+    // The received text Verify stages for an inline snapshot is named like any other received file,
+    // but the snapshot it belongs to lives in a source file. Accepting it as a file snapshot would
+    // rename it to a verified file nothing reads, and leave the real snapshot pending.
+    private static bool IsInlineStaging(FilePath path) =>
+        path.FullPath.Contains(
+            $"/{InlineSnapshotFinder.StagingDirectoryName}/",
+            StringComparison.OrdinalIgnoreCase);
 
     private (FilePath VerifiedPath, bool IsRerouted) GetVerified(
         ParsedName received,

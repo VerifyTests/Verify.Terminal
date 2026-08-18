@@ -3,13 +3,15 @@ namespace Verify.Terminal;
 public sealed class SnapshotManager
 {
     private readonly IFileSystem _fileSystem;
+    private readonly InlineSnapshotManager _inline;
 
-    public SnapshotManager(IFileSystem fileSystem)
+    public SnapshotManager(IFileSystem fileSystem, InlineSnapshotManager inline)
     {
-        _fileSystem = fileSystem;
+        _fileSystem = fileSystem.NotNull();
+        _inline = inline.NotNull();
     }
 
-    public bool Process(Snapshot snapshot, SnapshotAction action)
+    public SnapshotResult Process(ISnapshot snapshot, SnapshotAction action)
     {
         return action switch
         {
@@ -19,7 +21,29 @@ public sealed class SnapshotManager
         };
     }
 
-    public bool Accept(Snapshot snapshot)
+    public SnapshotResult Accept(ISnapshot snapshot)
+    {
+        return snapshot.NotNull() switch
+        {
+            Snapshot file => AcceptFile(file),
+            // An inline snapshot lives in a source file, so accepting rewrites a literal rather
+            // than moving a file, and is usually done by whichever process holds the snapshot.
+            InlineSnapshot inline => _inline.Accept(inline),
+            _ => throw UnknownType(snapshot),
+        };
+    }
+
+    public SnapshotResult Reject(ISnapshot snapshot)
+    {
+        return snapshot.NotNull() switch
+        {
+            Snapshot file => RejectFile(file),
+            InlineSnapshot inline => _inline.Reject(inline),
+            _ => throw UnknownType(snapshot),
+        };
+    }
+
+    private SnapshotResult AcceptFile(Snapshot snapshot)
     {
         try
         {
@@ -30,7 +54,7 @@ public sealed class SnapshotManager
                 if (_fileSystem.File.Exists(snapshot.Verified))
                 {
                     // Could not delete the file
-                    return false;
+                    return SnapshotResult.Failure();
                 }
             }
 
@@ -39,13 +63,13 @@ public sealed class SnapshotManager
         }
         catch
         {
-            return false;
+            return SnapshotResult.Failure();
         }
 
-        return true;
+        return SnapshotResult.Success;
     }
 
-    public bool Reject(Snapshot snapshot)
+    private SnapshotResult RejectFile(Snapshot snapshot)
     {
         try
         {
@@ -56,15 +80,18 @@ public sealed class SnapshotManager
                 if (_fileSystem.File.Exists(snapshot.Received))
                 {
                     // Could not delete the file
-                    return false;
+                    return SnapshotResult.Failure();
                 }
             }
         }
         catch
         {
-            return false;
+            return SnapshotResult.Failure();
         }
 
-        return true;
+        return SnapshotResult.Success;
     }
+
+    private static InvalidOperationException UnknownType(ISnapshot snapshot) =>
+        new($"Unknown snapshot type: {snapshot.GetType().Name}");
 }

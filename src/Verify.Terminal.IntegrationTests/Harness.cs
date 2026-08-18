@@ -82,8 +82,12 @@ public sealed class Harness : IDisposable
         return finder.Find(Directory).Single();
     }
 
-    public bool Accept(Snapshot snapshot) =>
-        new SnapshotManager(new FileSystem()).Accept(snapshot);
+    public bool Accept(Snapshot snapshot)
+    {
+        var fileSystem = new FileSystem();
+        var inline = new InlineSnapshotManager(fileSystem, new InlineQueueOwner());
+        return new SnapshotManager(fileSystem, inline).Accept(snapshot).Succeeded;
+    }
 
     public void Dispose()
     {
