@@ -96,7 +96,12 @@ public sealed class InlineSnapshotFinder
 
         // Ordered, so the patch a conflicted call site renders is the same one on every run.
         var paths = _globber
-            .Match(PatchPattern, new GlobberSettings { Root = root })
+            .Match(
+                PatchPattern,
+                new()
+                {
+                    Root = root
+                })
             .OfType<FilePath>()
             .OrderBy(_ => _.FullPath, StringComparer.Ordinal);
 
