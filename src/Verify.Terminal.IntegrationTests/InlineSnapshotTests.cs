@@ -117,6 +117,72 @@ public class InlineSnapshotTests
             """");
     }
 
+    // The scenario where DiffEngineTray or DiffEngineViewer is running when the test fails: the
+    // patch goes to that process over its socket, nothing is staged on disk, and the user then
+    // reviews and accepts in this tool anyway. So everything this tool shows has to come off the
+    // queue, and the accept has to be carried out by the owner.
+    [Fact]
+    public async Task QueuedSnapshot_IsFoundReviewedAndAcceptedThroughTheOwner()
+    {
+        using var harness = new Harness(nameof(QueuedSnapshot_IsFoundReviewedAndAcceptedThroughTheOwner));
+        using var owner = new InlineQueueHost();
+
+        var source = harness.CreateSource(
+            """
+            public class SampleTests
+            {
+                public Task Sample() =>
+                    Verify(value).Snapshot("old snapshot");
+            }
+            """);
+
+        await Fails(
+            harness,
+            _ => _.Snapshot("old snapshot", source, 4, "\"old snapshot\"", "Sample"),
+            useQueue: true);
+
+        // The owner took the patch over the socket, so the run left nothing on disk. This is the
+        // half that makes the scenario worth pinning: a tool that only scanned obj/VerifyInline/
+        // would report nothing pending here.
+        owner.Count.ShouldBe(1);
+        harness.PublishInline().ShouldBe(0);
+
+        var snapshot = harness.FindSingleInline();
+        snapshot.IsQueued.ShouldBeTrue();
+        snapshot.Staged.ShouldBeEmpty();
+        snapshot.Conflict.ShouldBeNull();
+        snapshot.SourceFile.ShouldBe(source);
+        snapshot.Line.ShouldBe(4);
+
+        // Review: both texts rode the queue listing on the patch, so the diff a review renders
+        // needs nothing from disk.
+        snapshot.Expected.ShouldBe("old snapshot");
+        snapshot.Received.ShouldBe(Value);
+
+        var diff = new SnapshotDiffer(new FileSystem(), new Spectre.IO.Environment()).Diff(snapshot);
+        diff.Old.Select(_ => _.Text).ShouldContain("old snapshot");
+        diff.New.Select(_ => _.Text).ShouldContain("line one");
+
+        // Accept: asked of the owner, which applies the patch and drops the entry, so every
+        // surface agrees the snapshot is no longer pending.
+        harness.Accept(snapshot).Succeeded.ShouldBeTrue();
+
+        harness.ReadSource().ShouldBe(
+            """"
+            public class SampleTests
+            {
+                public Task Sample() =>
+                    Verify(value).Snapshot(
+                        """
+                        line one
+                        line two
+                        """);
+            }
+            """");
+
+        owner.Count.ShouldBe(0);
+    }
+
     [Fact]
     public async Task RejectedSnapshot_LeavesTheSourceAlone()
     {
@@ -145,10 +211,11 @@ public class InlineSnapshotTests
     }
 
     // Runs Verify against the literal the generated source holds, expecting the mismatch (or the
-    // new snapshot) that leaves a patch behind.
-    private static async Task Fails(Harness harness, Action<VerifySettings> snapshot)
+    // new snapshot) that leaves a patch behind — with the queue owner when the scenario stood one
+    // up, and staged on disk otherwise.
+    private static async Task Fails(Harness harness, Action<VerifySettings> snapshot, bool useQueue = false)
     {
-        var settings = harness.CreateInlineSettings();
+        var settings = harness.CreateInlineSettings(useQueue);
         settings.UseTypeName("N");
         settings.UseMethodName("Sample");
         snapshot(settings);

@@ -9,6 +9,12 @@ public sealed class Harness : IDisposable
     // MaxInstancesToLaunch entirely. Which is how these tests came to open diff windows.
     private const string MaxInstancesVariable = "DiffEngine_MaxInstances";
 
+    // Where DiffEngine's clients look for the process owning the inline queue. Internal to
+    // DiffEngine but read from the environment on every call, so a test can point every client in
+    // this process somewhere of its own. If DiffEngine renames it these tests break loudly, which
+    // is the kind of assumption this suite exists to pin.
+    public const string ViewerPortVariable = "DiffEngine_ViewerPort";
+
     // All process wide, so they are put back in Dispose rather than left set for whatever runs next.
     // Captured rather than assumed, since DiffEngine and the machine decide them between them.
     private readonly bool _diffDisabled = DiffEngine.DiffRunner.Disabled;
@@ -16,6 +22,8 @@ public sealed class Harness : IDisposable
         System.Environment.GetEnvironmentVariable(DiffEngine.DiffRunner.InlineViewerVariable);
     private readonly string? _maxInstances =
         System.Environment.GetEnvironmentVariable(MaxInstancesVariable);
+    private readonly string? _viewerPort =
+        System.Environment.GetEnvironmentVariable(ViewerPortVariable);
 
     public Harness(string name)
     {
@@ -29,6 +37,12 @@ public sealed class Harness : IDisposable
         System.Environment.SetEnvironmentVariable(MaxInstancesVariable, "0");
         DiffEngine.DiffRunner.MaxInstancesToLaunch(0);
 
+        // Point every queue exchange this process makes at a port nothing listens on, so a scenario
+        // is refused instantly instead of reaching whatever tray or viewer happens to be running on
+        // the machine — sending it patches, tracked moves, and settles for the harness directory. A
+        // scenario that wants an owner stands its own up (InlineQueueHost), which overrides this.
+        System.Environment.SetEnvironmentVariable(ViewerPortVariable, DeadPort().ToString());
+
         _directory = System.IO.Path.Combine(
             System.IO.Path.GetTempPath(),
             "verify-terminal-it",
@@ -38,6 +52,18 @@ public sealed class Harness : IDisposable
     }
 
     public DirectoryPath Directory { get; }
+
+    // A loopback port with nothing behind it: bound to let the OS pick a free one, then released.
+    // Something else could bind it between here and the first exchange, but this is a test machine
+    // and the window is milliseconds.
+    private static int DeadPort()
+    {
+        var listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Loopback, 0);
+        listener.Start();
+        var port = ((System.Net.IPEndPoint) listener.LocalEndpoint).Port;
+        listener.Stop();
+        return port;
+    }
 
     // Verify writes maps to this test project's obj directory, but a real run scans a root that
     // contains obj. So copy this scenario's maps under the harness directory to match that layout.
@@ -86,13 +112,17 @@ public sealed class Harness : IDisposable
     // by itself on a build server, under continuous testing and under an AI CLI. So it is turned on
     // for these scenarios only, and put back in Dispose: the file snapshot tests keep the diff path
     // they have always had, which is none.
-    public VerifySettings CreateInlineSettings()
+    public VerifySettings CreateInlineSettings(bool useQueue = false)
     {
         DiffEngine.DiffRunner.Disabled = false;
 
         // Being on that path would otherwise mean depending on whether a viewer happens to be
-        // running. This keeps an inline snapshot on the staging fallback either way.
-        System.Environment.SetEnvironmentVariable(DiffEngine.DiffRunner.InlineViewerVariable, "false");
+        // running. The default keeps an inline snapshot on the staging fallback; a scenario that
+        // stood up its own queue owner (InlineQueueHost) opts back in, so its patch crosses the
+        // socket exactly as it would to a tray or viewer.
+        System.Environment.SetEnvironmentVariable(
+            DiffEngine.DiffRunner.InlineViewerVariable,
+            useQueue ? "true" : "false");
 
         var settings = new VerifySettings();
         settings.UseDirectory(_directory);
@@ -226,6 +256,7 @@ public sealed class Harness : IDisposable
         DiffEngine.DiffRunner.Disabled = _diffDisabled;
         System.Environment.SetEnvironmentVariable(DiffEngine.DiffRunner.InlineViewerVariable, _inlineViewer);
         System.Environment.SetEnvironmentVariable(MaxInstancesVariable, _maxInstances);
+        System.Environment.SetEnvironmentVariable(ViewerPortVariable, _viewerPort);
 
         try
         {
