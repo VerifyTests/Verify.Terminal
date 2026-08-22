@@ -14,7 +14,7 @@
     <PackageVersion Include="Spectre.Console.Testing" Version="0.57.2" />
     <PackageVersion Include="Spectre.IO.Testing" Version="0.23.0" />
     <PackageVersion Include="Spectre.Verify.Extensions" Version="28.16.0" />
-    <PackageVersion Include="Verify.ExceptionParsing" Version="31.28.0" />
+    <PackageVersion Include="Verify.ExceptionParsing" Version="32.0.0-beta.11" />
     <PackageVersion Include="Verify" Version="32.0.0-beta.11" />
     <PackageVersion Include="Verify.XunitV3" Version="32.0.0-beta.11" />
     <PackageVersion Include="xunit.v3" Version="4.0.0" />
