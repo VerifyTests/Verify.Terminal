@@ -101,7 +101,13 @@ public sealed class InlineSnapshotManager
                 // The run that staged these files may still have queued the patch with an owner
                 // that arrived afterwards, and that queue outlives the run. Without this a tray
                 // keeps offering a snapshot that is already in the source.
-                DiffRunner.SettleInline(staged.Patch.SourceFile, staged.Patch.LineHint);
+                //
+                // The applied verb, not SettleInline: that one labels the settle with the running
+                // process's framework, which here is this tool's rather than the test project's, so
+                // the owner finds no variant to strip and does nothing - and answers no differently
+                // than if it had, so the miss says nothing. This one carries no framework, which is
+                // the true statement anyway: the literal every variant was anchored to has gone.
+                DiffRunner.SettleAppliedInline(staged.Patch);
                 return DeleteStaged(snapshot);
 
             case InlineApplyStatus.NotFound:
