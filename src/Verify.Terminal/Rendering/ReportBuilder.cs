@@ -13,8 +13,8 @@ public sealed class ReportBuilder
     public ReportBuilder(IAnsiConsole console, CharacterSet characters)
     {
         _console = console.NotNull();
-        _buffer = new List<Segment>();
-        _lines = new List<SegmentLine>();
+        _buffer = new();
+        _lines = new();
 
         Characters = characters.NotNull();
     }
@@ -42,12 +42,12 @@ public sealed class ReportBuilder
             text = text[..maxLength.Value];
         }
 
-        _buffer.Add(new Segment(text, new Style(foreground: color, decoration: decoration)));
+        _buffer.Add(new(text, new(foreground: color, decoration: decoration)));
     }
 
     public void Append(char character, Color? color = null, Decoration? decoration = null)
     {
-        _buffer.Add(new Segment(new string(character, 1), new Style(foreground: color, decoration: decoration)));
+        _buffer.Add(new(new(character, 1), new(foreground: color, decoration: decoration)));
     }
 
     public void AppendRepeated(Character character, int count, Color? color = null)
@@ -80,7 +80,7 @@ public sealed class ReportBuilder
             AppendSpace();
         }
 
-        _lines.Add(new SegmentLine(_buffer));
+        _lines.Add(new(_buffer));
         _buffer.Clear();
     }
 

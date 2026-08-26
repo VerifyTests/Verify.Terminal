@@ -66,7 +66,7 @@ public sealed class SnapshotDiff
 
         if (ranges.Count == 0)
         {
-            return new List<(int Start, int Stop)>();
+            return new();
         }
 
         return MergeRanges(ranges);

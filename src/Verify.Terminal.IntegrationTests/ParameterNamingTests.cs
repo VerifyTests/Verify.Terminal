@@ -30,7 +30,7 @@ public class ParameterNamingTests : IntegrationTestBase
     // Run against both the map, which is how Verify behaves now, and the fallback, which still applies
     // to an older Verify, or when obj is not scanned. Looped rather than another [InlineData], since an extra
     // test method parameter would be appended to the snapshot name by Verify.
-    async Task AssertParametersAreDetected(string name, string a, string b, string? ignored, string expectedVerified)
+    static async Task AssertParametersAreDetected(string name, string a, string b, string? ignored, string expectedVerified)
     {
         await Run(withMap: true);
         await Run(withMap: false);
@@ -41,23 +41,18 @@ public class ParameterNamingTests : IntegrationTestBase
         {
             using var harness = new Harness(name);
 
-            VerifySettings Settings()
+            var settings = harness.CreateSettings();
+            settings.UseTypeName("N");
+            settings.UseMethodName("Params");
+            settings.UseParameters(a, b);
+            if (ignored != null)
             {
-                var settings = harness.CreateSettings();
-                settings.UseTypeName("N");
-                settings.UseMethodName("Params");
-                settings.UseParameters(a, b);
-                if (ignored != null)
-                {
-                    settings.IgnoreParameters(ignored);
-                }
-
-                return settings;
+                settings.IgnoreParameters(ignored);
             }
 
             var because = withMap ? "with map" : "without map";
 
-            var correctVerified = await ProduceReceived(Settings());
+            var correctVerified = await ProduceReceived(settings);
             correctVerified.ShouldBe(expectedVerified, because);
 
             var received = harness.ReceivedFileNames().ShouldHaveSingleItem();
@@ -74,8 +69,8 @@ public class ParameterNamingTests : IntegrationTestBase
             System.IO.Path.GetFileName(snapshot.Verified.FullPath).ShouldBe(correctVerified, because);
             snapshot.IsRerouted.ShouldBeTrue(because);
 
-            harness.Accept(snapshot).Succeeded.ShouldBeTrue(because);
-            (await Verifies(Settings())).ShouldBeTrue(because);
+            Harness.Accept(snapshot).Succeeded.ShouldBeTrue(because);
+            (await Verifies(settings)).ShouldBeTrue(because);
         }
     }
 
@@ -85,17 +80,13 @@ public class ParameterNamingTests : IntegrationTestBase
     {
         using var harness = new Harness(nameof(IgnoreLeadingParameter_WithMap_IsPlaced));
 
-        VerifySettings Settings()
-        {
-            var settings = harness.CreateSettings();
-            settings.UseTypeName("N");
-            settings.UseMethodName("Params");
-            settings.UseParameters(a, b);
-            settings.IgnoreParameters("a");
-            return settings;
-        }
+        var settings = harness.CreateSettings();
+        settings.UseTypeName("N");
+        settings.UseMethodName("Params");
+        settings.UseParameters(a, b);
+        settings.IgnoreParameters("a");
 
-        var correctVerified = await ProduceReceived(Settings());
+        var correctVerified = await ProduceReceived(settings);
         correctVerified.ShouldBe("N.Params_b=2.verified.txt");
 
         harness.SeedVerified(correctVerified, "old-verified");
@@ -106,8 +97,8 @@ public class ParameterNamingTests : IntegrationTestBase
         System.IO.Path.GetFileName(snapshot.Verified.FullPath).ShouldBe(correctVerified);
         snapshot.IsRerouted.ShouldBeTrue();
 
-        harness.Accept(snapshot).Succeeded.ShouldBeTrue();
-        (await Verifies(Settings())).ShouldBeTrue();
+        Harness.Accept(snapshot).Succeeded.ShouldBeTrue();
+        (await Verifies(settings)).ShouldBeTrue();
     }
 
     [Theory]
@@ -116,17 +107,13 @@ public class ParameterNamingTests : IntegrationTestBase
     {
         using var harness = new Harness(nameof(IgnoreLeadingParameter_WithoutMap_CannotBePaired));
 
-        VerifySettings Settings()
-        {
-            var settings = harness.CreateSettings();
-            settings.UseTypeName("N");
-            settings.UseMethodName("Params");
-            settings.UseParameters(a, b);
-            settings.IgnoreParameters("a");
-            return settings;
-        }
+        var settings = harness.CreateSettings();
+        settings.UseTypeName("N");
+        settings.UseMethodName("Params");
+        settings.UseParameters(a, b);
+        settings.IgnoreParameters("a");
 
-        var correctVerified = await ProduceReceived(Settings());
+        var correctVerified = await ProduceReceived(settings);
         // The leading parameter `a` is dropped, so the verified name is not a prefix of the received name.
         correctVerified.ShouldBe("N.Params_b=2.verified.txt");
 
@@ -141,11 +128,11 @@ public class ParameterNamingTests : IntegrationTestBase
         System.IO.Path.GetFileName(snapshot.Verified.FullPath).ShouldBe(literal);
         snapshot.IsRerouted.ShouldBeFalse();
 
-        harness.Accept(snapshot).Succeeded.ShouldBeTrue();
+        Harness.Accept(snapshot).Succeeded.ShouldBeTrue();
 
         // A non-trailing ignored parameter cannot be reconstructed from the received name, so the
         // accept lands at the wrong verified file and Verify still fails. This is only reachable
         // without a map, ie. an older Verify, or when obj is not scanned. See the WithMap case above.
-        (await Verifies(Settings())).ShouldBeFalse();
+        (await Verifies(settings)).ShouldBeFalse();
     }
 }

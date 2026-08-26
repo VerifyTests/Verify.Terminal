@@ -84,7 +84,7 @@ public class SnapshotRendererTests
         // are there.
         var diff = differ.Diff(
             new InlineSnapshot(
-                InlineTestData.Patch("from net10", "old snapshot"),
+                InlineTestData.Patch("from net10"),
                 isQueued: true,
                 conflict: "net8.0 / net10.0"));
 

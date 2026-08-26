@@ -54,7 +54,7 @@ public class InlineSnapshotTests
         // snapshot pending.
         harness.FindFileSnapshots().ShouldBeEmpty();
 
-        harness.Accept(snapshot).Succeeded.ShouldBeTrue();
+        Harness.Accept(snapshot).Succeeded.ShouldBeTrue();
 
         // The literal is written as the raw string Verify reads back, which is what makes the next
         // run pass rather than fail against its own snapshot.
@@ -101,7 +101,7 @@ public class InlineSnapshotTests
         snapshot.Expected.ShouldBeEmpty();
         snapshot.Received.ShouldBe(Value);
 
-        harness.Accept(snapshot).Succeeded.ShouldBeTrue();
+        Harness.Accept(snapshot).Succeeded.ShouldBeTrue();
 
         harness.ReadSource().ShouldBe(
             """"
@@ -165,7 +165,7 @@ public class InlineSnapshotTests
 
         // Accept: asked of the owner, which applies the patch and drops the entry, so every
         // surface agrees the snapshot is no longer pending.
-        harness.Accept(snapshot).Succeeded.ShouldBeTrue();
+        Harness.Accept(snapshot).Succeeded.ShouldBeTrue();
 
         harness.ReadSource().ShouldBe(
             """"
@@ -201,7 +201,7 @@ public class InlineSnapshotTests
         await Fails(harness, _ => _.Snapshot("old snapshot", source, 4, "\"old snapshot\"", "Sample"));
         harness.PublishInline().ShouldBe(1);
 
-        harness.Reject(harness.FindSingleInline()).Succeeded.ShouldBeTrue();
+        Harness.Reject(harness.FindSingleInline()).Succeeded.ShouldBeTrue();
 
         harness.ReadSource().ShouldBe(before);
 

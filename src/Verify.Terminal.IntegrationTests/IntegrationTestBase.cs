@@ -38,7 +38,7 @@ public abstract class IntegrationTestBase
     // snapshots from an older Verify, or when obj is not scanned. Both have to reach the same file.
     // Looped rather than a [Theory], since a test method parameter would be appended to the snapshot
     // name by Verify and change the very names under assertion.
-    protected async Task AssertExistingVerifiedIsDetected(
+    protected static async Task AssertExistingVerifiedIsDetected(
         string method,
         Action<VerifySettings> configure,
         string expectedVerified)
@@ -83,7 +83,7 @@ public abstract class IntegrationTestBase
             var literal = received.Replace(".received.", ".verified.");
             snapshot.IsRerouted.ShouldBe(correctVerified != literal, because);
 
-            harness.Accept(snapshot).Succeeded.ShouldBeTrue(because);
+            Harness.Accept(snapshot).Succeeded.ShouldBeTrue(because);
 
             // The received value now lives at the correct verified name, so Verify passes.
             (await Verifies(settings)).ShouldBeTrue(because);
@@ -93,7 +93,7 @@ public abstract class IntegrationTestBase
     // A brand new snapshot with no verified file on disk. With nothing to pair against, the finder
     // falls back to the received-derived name. Whether that is correct depends on whether the correct
     // verified name equals the received-derived name.
-    protected async Task AssertNewSnapshot(
+    protected static async Task AssertNewSnapshot(
         string method,
         Action<VerifySettings> configure,
         string expectedVerified,
@@ -118,14 +118,14 @@ public abstract class IntegrationTestBase
         System.IO.Path.GetFileName(snapshot.Verified.FullPath).ShouldBe(literal);
         snapshot.IsRerouted.ShouldBeFalse();
 
-        harness.Accept(snapshot).Succeeded.ShouldBeTrue();
+        Harness.Accept(snapshot).Succeeded.ShouldBeTrue();
 
         (await Verifies(settings)).ShouldBe(expectRoundTrips);
     }
 
     // A brand new snapshot, but with Verify's received map available. The map names the verified file,
     // so the finder places it correctly instead of falling back to the received-derived name.
-    protected async Task AssertNewSnapshotWithMap(
+    protected static async Task AssertNewSnapshotWithMap(
         string method,
         Action<VerifySettings> configure,
         string expectedVerified)
@@ -149,7 +149,7 @@ public abstract class IntegrationTestBase
         System.IO.Path.GetFileName(snapshot.Verified.FullPath).ShouldBe(correctVerified);
         snapshot.IsRerouted.ShouldBe(correctVerified != received.Replace(".received.", ".verified."));
 
-        harness.Accept(snapshot).Succeeded.ShouldBeTrue();
+        Harness.Accept(snapshot).Succeeded.ShouldBeTrue();
 
         // The accept landed where Verify expects, so the next run passes.
         (await Verifies(settings)).ShouldBeTrue();

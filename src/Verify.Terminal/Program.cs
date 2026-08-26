@@ -38,6 +38,6 @@ public static class Program
         services.AddSingleton<SnapshotDiffer>();
         services.AddSingleton<SnapshotRenderer>();
 
-        return new TypeRegistrar(services);
+        return new(services);
     }
 }
