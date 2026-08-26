@@ -5,7 +5,7 @@ public static class EmbeddedResourceReader
     public static string LoadResourceStream(string resourceName)
     {
         var assembly = Assembly.GetCallingAssembly();
-        resourceName = resourceName.Replace("/", ".");
+        resourceName = resourceName.Replace('/', '.');
 
         using var stream = assembly.GetManifestResourceStream(resourceName)!;
         using var reader = new StreamReader(stream);
