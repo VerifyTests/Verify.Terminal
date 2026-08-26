@@ -22,7 +22,7 @@ public static class DeadInlineQueue
     /// </summary>
     public const string PortVariable = "DiffEngine_ViewerPort";
 
-    [System.Runtime.CompilerServices.ModuleInitializer]
+    [ModuleInitializer]
     internal static void Point() =>
         System.Environment.SetEnvironmentVariable(PortVariable, DeadPort().ToString());
 

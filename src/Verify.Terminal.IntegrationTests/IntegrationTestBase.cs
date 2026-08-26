@@ -52,18 +52,14 @@ public abstract class IntegrationTestBase
         {
             using var harness = new Harness(method);
 
-            VerifySettings Settings()
-            {
-                var settings = harness.CreateSettings();
-                settings.UseTypeName("N");
-                settings.UseMethodName(method);
-                configure(settings);
-                return settings;
-            }
+            var settings = harness.CreateSettings();
+            settings.UseTypeName("N");
+            settings.UseMethodName(method);
+            configure(settings);
 
             var because = withMap ? "with map" : "without map";
 
-            var correctVerified = await ProduceReceived(Settings());
+            var correctVerified = await ProduceReceived(settings);
 
             // Verify's own verified name matches what Verify.Terminal assumes.
             correctVerified.ShouldBe(expectedVerified, because);
@@ -90,7 +86,7 @@ public abstract class IntegrationTestBase
             harness.Accept(snapshot).Succeeded.ShouldBeTrue(because);
 
             // The received value now lives at the correct verified name, so Verify passes.
-            (await Verifies(Settings())).ShouldBeTrue(because);
+            (await Verifies(settings)).ShouldBeTrue(because);
         }
     }
 
@@ -105,16 +101,12 @@ public abstract class IntegrationTestBase
     {
         using var harness = new Harness(method);
 
-        VerifySettings Settings()
-        {
-            var settings = harness.CreateSettings();
-            settings.UseTypeName("N");
-            settings.UseMethodName(method);
-            configure(settings);
-            return settings;
-        }
+        var settings = harness.CreateSettings();
+        settings.UseTypeName("N");
+        settings.UseMethodName(method);
+        configure(settings);
 
-        var correctVerified = await ProduceReceived(Settings());
+        var correctVerified = await ProduceReceived(settings);
         correctVerified.ShouldBe(expectedVerified);
 
         var received = harness.ReceivedFileNames().ShouldHaveSingleItem();
@@ -128,7 +120,7 @@ public abstract class IntegrationTestBase
 
         harness.Accept(snapshot).Succeeded.ShouldBeTrue();
 
-        (await Verifies(Settings())).ShouldBe(expectRoundTrips);
+        (await Verifies(settings)).ShouldBe(expectRoundTrips);
     }
 
     // A brand new snapshot, but with Verify's received map available. The map names the verified file,
@@ -140,16 +132,12 @@ public abstract class IntegrationTestBase
     {
         using var harness = new Harness(method);
 
-        VerifySettings Settings()
-        {
-            var settings = harness.CreateSettings();
-            settings.UseTypeName("N");
-            settings.UseMethodName(method);
-            configure(settings);
-            return settings;
-        }
+        var settings = harness.CreateSettings();
+        settings.UseTypeName("N");
+        settings.UseMethodName(method);
+        configure(settings);
 
-        var correctVerified = await ProduceReceived(Settings());
+        var correctVerified = await ProduceReceived(settings);
         correctVerified.ShouldBe(expectedVerified);
 
         var received = harness.ReceivedFileNames().ShouldHaveSingleItem();
@@ -164,7 +152,7 @@ public abstract class IntegrationTestBase
         harness.Accept(snapshot).Succeeded.ShouldBeTrue();
 
         // The accept landed where Verify expects, so the next run passes.
-        (await Verifies(Settings())).ShouldBeTrue();
+        (await Verifies(settings)).ShouldBeTrue();
     }
 
     private static string ParseVerifiedFileName(string message)

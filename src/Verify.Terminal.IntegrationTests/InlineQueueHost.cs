@@ -233,7 +233,7 @@ public sealed class InlineQueueHost : IDisposable
 
     public void Dispose()
     {
-        System.Environment.SetEnvironmentVariable(DeadInlineQueue.PortVariable, _previousPort);
+        Environment.SetEnvironmentVariable(DeadInlineQueue.PortVariable, _previousPort);
         _cancellation.Cancel();
         _listener.Stop();
         try

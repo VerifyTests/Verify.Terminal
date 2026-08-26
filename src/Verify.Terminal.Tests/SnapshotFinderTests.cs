@@ -245,7 +245,7 @@ public sealed class SnapshotFinderTests
 
     private static Snapshot? Find(params string[] files)
     {
-        var environment = new FakeEnvironment(Spectre.IO.PlatformFamily.Linux);
+        var environment = new FakeEnvironment(PlatformFamily.Linux);
         var filesystem = new FakeFileSystem(environment);
         var globber = new Globber(filesystem, environment);
 

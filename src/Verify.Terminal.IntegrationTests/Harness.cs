@@ -63,11 +63,11 @@ public sealed class Harness : IDisposable
 
         foreach (var file in System.IO.Directory.GetFiles(source))
         {
-            var lines = System.IO.File.ReadAllLines(file);
+            var lines = File.ReadAllLines(file);
             if (lines.Length > 0 &&
                 lines[0].StartsWith(_directory, StringComparison.OrdinalIgnoreCase))
             {
-                System.IO.File.Copy(file, System.IO.Path.Combine(target, System.IO.Path.GetFileName(file)), true);
+                File.Copy(file, System.IO.Path.Combine(target, System.IO.Path.GetFileName(file)), true);
                 copied++;
             }
         }
@@ -113,12 +113,12 @@ public sealed class Harness : IDisposable
     public string CreateSource(string content)
     {
         var path = System.IO.Path.Combine(_directory, "SampleTests.cs");
-        System.IO.File.WriteAllText(path, content);
+        File.WriteAllText(path, content);
         return path;
     }
 
     public string ReadSource() =>
-        System.IO.File.ReadAllText(System.IO.Path.Combine(_directory, "SampleTests.cs"));
+        File.ReadAllText(System.IO.Path.Combine(_directory, "SampleTests.cs"));
 
     // Verify stages inline snapshots in this test project's obj directory, but a real run scans a
     // root that contains obj. So copy this scenario's staged files under the harness directory to
@@ -142,7 +142,7 @@ public sealed class Harness : IDisposable
         {
             // The patch names the source file it edits, which is what tells this scenario's staging
             // from that of every other run this project has ever done.
-            if (!System.IO.File.ReadAllText(patch).Contains(_directory, StringComparison.OrdinalIgnoreCase))
+            if (!File.ReadAllText(patch).Contains(_directory, StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
@@ -151,7 +151,7 @@ public sealed class Harness : IDisposable
             var stem = System.IO.Path.GetFileNameWithoutExtension(patch);
             foreach (var file in System.IO.Directory.GetFiles(source, $"{stem}.*"))
             {
-                System.IO.File.Copy(
+                File.Copy(
                     file,
                     System.IO.Path.Combine(target, System.IO.Path.GetFileName(file)),
                     true);
@@ -184,7 +184,7 @@ public sealed class Harness : IDisposable
     }
 
     public void SeedVerified(string fileName, string content) =>
-        System.IO.File.WriteAllText(System.IO.Path.Combine(_directory, fileName), content);
+        File.WriteAllText(System.IO.Path.Combine(_directory, fileName), content);
 
     public IReadOnlyList<string> ReceivedFileNames() =>
         System.IO.Directory

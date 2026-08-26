@@ -287,21 +287,21 @@ public sealed class InlineSnapshotManagerTests
             _directory = System.IO.Path.Combine(
                 System.IO.Path.GetTempPath(),
                 $"verify-terminal-inline-{Guid.NewGuid():N}");
-            System.IO.Directory.CreateDirectory(_directory);
+            Directory.CreateDirectory(_directory);
 
             Path = System.IO.Path.Combine(_directory, "SampleTests.cs");
-            System.IO.File.WriteAllText(Path, content);
+            File.WriteAllText(Path, content);
         }
 
         public string Path { get; }
 
-        public string Read() => System.IO.File.ReadAllText(Path);
+        public string Read() => File.ReadAllText(Path);
 
         public void Dispose()
         {
             try
             {
-                System.IO.Directory.Delete(_directory, recursive: true);
+                Directory.Delete(_directory, recursive: true);
             }
             catch
             {
