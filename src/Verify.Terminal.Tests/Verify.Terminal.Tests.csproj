@@ -25,4 +25,8 @@
     <PackageReference Include="xunit.v3" />
     <ProjectReference Include="..\Verify.Terminal\Verify.Terminal.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Shared with the other test project: both make inline queue exchanges. -->
+    <Compile Include="..\Shared\DeadInlineQueue.cs" Link="Utilities\DeadInlineQueue.cs" />
+  </ItemGroup>
 </Project>

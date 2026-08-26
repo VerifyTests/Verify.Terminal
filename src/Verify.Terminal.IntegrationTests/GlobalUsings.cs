@@ -2,6 +2,7 @@ global using System.Reflection;
 global using Shouldly;
 global using Spectre.IO;
 global using Verify.Terminal;
+global using Verify.Terminal.Testing;
 global using VerifyTests;
 global using VerifyXunit;
 global using Xunit;

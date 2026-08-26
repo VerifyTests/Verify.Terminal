@@ -33,8 +33,8 @@ public sealed class InlineQueueHost : IDisposable
         _listener.Start();
         var port = ((IPEndPoint) _listener.LocalEndpoint).Port;
 
-        _previousPort = System.Environment.GetEnvironmentVariable(Harness.ViewerPortVariable);
-        System.Environment.SetEnvironmentVariable(Harness.ViewerPortVariable, port.ToString());
+        _previousPort = System.Environment.GetEnvironmentVariable(DeadInlineQueue.PortVariable);
+        System.Environment.SetEnvironmentVariable(DeadInlineQueue.PortVariable, port.ToString());
 
         _loop = Task.Run(Listen);
     }
@@ -257,7 +257,7 @@ public sealed class InlineQueueHost : IDisposable
 
     public void Dispose()
     {
-        System.Environment.SetEnvironmentVariable(Harness.ViewerPortVariable, _previousPort);
+        System.Environment.SetEnvironmentVariable(DeadInlineQueue.PortVariable, _previousPort);
         _cancellation.Cancel();
         _listener.Stop();
         try
