@@ -62,6 +62,35 @@ public sealed class InlineSnapshotManagerTests
     }
 
     [Fact]
+    public void Should_Fall_Back_To_The_Staged_Patch_When_The_Owner_Went_Away()
+    {
+        // The other half of an Unknown: the owner went away between the listing and the accept, but
+        // the run that handed it the patch staged one too, so there is something left to apply.
+        using var source = new TemporarySource(
+            """
+            public class SampleTests
+            {
+                public Task Sample() =>
+                    Verify(value).Snapshot("old snapshot");
+            }
+            """);
+
+        var fileSystem = CreateFileSystem();
+        var patch = InlineTestData.Patch("new snapshot", line: 4, source: source.Path);
+        InlineTestData.Stage(fileSystem, patch);
+
+        var queue = new FakeInlineQueueOwner { AcceptOutcome = InlineAcceptOutcome.Unknown };
+        var snapshot = new InlineSnapshot(patch, isQueued: true, Staged(fileSystem, patch));
+
+        Create(queue, fileSystem).Accept(snapshot).Succeeded.ShouldBeTrue();
+
+        // Asked of the owner first, and applied here only because it did not answer for it.
+        queue.Accepted.ShouldHaveSingleItem();
+        source.Read().ShouldContain("""Snapshot("new snapshot")""");
+        StagedFiles(fileSystem).ShouldBeEmpty();
+    }
+
+    [Fact]
     public void Should_Clear_The_Staged_Files_When_The_Owner_Accepts()
     {
         var fileSystem = CreateFileSystem();
@@ -172,6 +201,30 @@ public sealed class InlineSnapshotManagerTests
 
         result.Succeeded.ShouldBeFalse();
         result.Message.ShouldBe("still busy");
+    }
+
+    [Fact]
+    public void Should_Treat_A_Discard_The_Owner_Could_Not_Be_Asked_About_As_Done()
+    {
+        // The discard failed and the owner could not be asked whether the entry survived it: it
+        // went away, or answered with an error. Neither says the snapshot is still pending, so the
+        // staging is cleared and the reject stands rather than reporting a failure it cannot back.
+        var fileSystem = CreateFileSystem();
+        var patch = InlineTestData.Patch("new snapshot");
+        InlineTestData.Stage(fileSystem, patch);
+
+        var queue = new FakeInlineQueueOwner
+        {
+            DiscardResult = false,
+            DiscardMessage = "connection refused",
+            StillPendingResult = null,
+        };
+
+        var snapshot = new InlineSnapshot(patch, isQueued: true, Staged(fileSystem, patch));
+
+        Create(queue, fileSystem).Reject(snapshot).Succeeded.ShouldBeTrue();
+
+        StagedFiles(fileSystem).ShouldBeEmpty();
     }
 
     [Fact]
