@@ -55,36 +55,15 @@ public sealed class InlineQueueHost : IDisposable
     {
         while (!_cancellation.IsCancellationRequested)
         {
-            TcpClient client;
-            try
-            {
-                client = await _listener.AcceptTcpClientAsync(_cancellation.Token);
-            }
-            catch (Exception exception)
-                when (exception is OperationCanceledException or SocketException or ObjectDisposedException)
-            {
-                return;
-            }
-
-            try
-            {
-                using (client)
-                {
-                    using var stream = client.GetStream();
-                    using var reader = new StreamReader(stream, Encoding.UTF8);
-                    // The client half-closes after writing, so the request is read to its end.
-                    var request = await reader.ReadToEndAsync();
-                    var response = Handle(request);
-                    var bytes = Encoding.UTF8.GetBytes(response);
-                    await stream.WriteAsync(bytes, _cancellation.Token);
-                    await stream.FlushAsync(_cancellation.Token);
-                }
-            }
-            catch (Exception exception)
-                when (exception is IOException or SocketException or ObjectDisposedException or OperationCanceledException)
-            {
-                // A client that vanished mid exchange. Nothing to answer.
-            }
+            using var client = await _listener.AcceptTcpClientAsync(_cancellation.Token);
+            await using var stream = client.GetStream();
+            using var reader = new StreamReader(stream, Encoding.UTF8);
+            // The client half-closes after writing, so the request is read to its end.
+            var request = await reader.ReadToEndAsync();
+            var response = Handle(request);
+            var bytes = Encoding.UTF8.GetBytes(response);
+            await stream.WriteAsync(bytes, _cancellation.Token);
+            await stream.FlushAsync(_cancellation.Token);
         }
     }
 
@@ -223,15 +202,25 @@ public sealed class InlineQueueHost : IDisposable
         return builder.ToString();
     }
 
-    private static string Ok(string? message = null) =>
-        message is null
-            ? "version: 1\nstatus: ok\n"
-            : $"version: 1\nstatus: ok\nmessage: {Encode(message)}\n";
+    private static string Ok(string? message = null)
+    {
+        if (message is null)
+        {
+            return "version: 1\nstatus: ok\n";
+        }
 
-    private static string Error(string? message) =>
-        message is null
-            ? "version: 1\nstatus: error\n"
-            : $"version: 1\nstatus: error\nmessage: {Encode(message)}\n";
+        return $"version: 1\nstatus: ok\nmessage: {Encode(message)}\n";
+    }
+
+    private static string Error(string? message)
+    {
+        if (message is null)
+        {
+            return "version: 1\nstatus: error\n";
+        }
+
+        return $"version: 1\nstatus: error\nmessage: {Encode(message)}\n";
+    }
 
     private static string Origins(IReadOnlyList<string> origins) =>
         origins.Count == 0 ? "" : Encode(string.Join(",", origins));
@@ -239,22 +228,8 @@ public sealed class InlineQueueHost : IDisposable
     private static string Encode(string value) =>
         Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
 
-    private static string? Decode(string value)
-    {
-        if (value.Length == 0)
-        {
-            return "";
-        }
-
-        try
-        {
-            return Encoding.UTF8.GetString(Convert.FromBase64String(value));
-        }
-        catch (FormatException)
-        {
-            return null;
-        }
-    }
+    private static string? Decode(string value) =>
+        Encoding.UTF8.GetString(Convert.FromBase64String(value));
 
     public void Dispose()
     {
