@@ -22,6 +22,9 @@ jobs:
     name: Publish
     if: "!contains(github.event.head_commit.message, 'skip-ci')"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -31,7 +34,13 @@ jobs:
       - name: Setup dotnet
         uses: actions/setup-dotnet@v5
 
+      - name: NuGet login
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: SimonCropp
+
       - name: Publish
         shell: bash
         run: |
-          dotnet build.cs --target="publish" --nuget-key="${{secrets.NUGET_API_KEY}}"
+          dotnet build.cs --target="publish" --nuget-key="${{steps.login.outputs.NUGET_API_KEY}}"
