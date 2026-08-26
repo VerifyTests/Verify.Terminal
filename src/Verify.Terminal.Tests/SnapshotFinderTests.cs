@@ -231,9 +231,21 @@ public sealed class SnapshotFinderTests
         result.Verified.FullPath.ShouldBe("/Working/Foo.DotNet11_0#00.verified.txt");
     }
 
+    [Fact]
+    public void Should_Ignore_The_Inline_Staging_Directory()
+    {
+        // Verify stages the received text of an inline snapshot under obj, named like any other
+        // received file. The snapshot it belongs to lives in a source file, so accepting it here
+        // would rename it to a verified file nothing reads and leave the real snapshot pending.
+        Find(
+            "/Working/obj/VerifyInline/N.Sample.a1b2c3d4.DotNet10_0.received.txt",
+            "/Working/obj/VerifyInline/N.Sample.a1b2c3d4.DotNet10_0.expected.txt")
+            .ShouldBeNull();
+    }
+
     private static Snapshot? Find(params string[] files)
     {
-        var environment = new FakeEnvironment(Spectre.IO.PlatformFamily.Linux);
+        var environment = new FakeEnvironment(PlatformFamily.Linux);
         var filesystem = new FakeFileSystem(environment);
         var globber = new Globber(filesystem, environment);
 

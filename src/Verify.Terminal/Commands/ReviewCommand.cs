@@ -2,18 +2,18 @@ namespace Verify.Terminal.Commands;
 
 public sealed class ReviewCommand : Command<ReviewCommand.Settings>
 {
-    private readonly SnapshotFinder _snapshotFinder;
+    private readonly SnapshotLocator _snapshotLocator;
     private readonly SnapshotDiffer _snapshotDiffer;
     private readonly SnapshotManager _snapshotManager;
     private readonly SnapshotRenderer _snapshotRenderer;
 
     public ReviewCommand(
-        SnapshotFinder snapshotFinder,
+        SnapshotLocator snapshotLocator,
         SnapshotDiffer snapshotDiffer,
         SnapshotManager snapshotManager,
         SnapshotRenderer snapshotRenderer)
     {
-        _snapshotFinder = snapshotFinder.NotNull();
+        _snapshotLocator = snapshotLocator.NotNull();
         _snapshotDiffer = snapshotDiffer.NotNull();
         _snapshotManager = snapshotManager.NotNull();
         _snapshotRenderer = snapshotRenderer.NotNull();
@@ -37,7 +37,7 @@ public sealed class ReviewCommand : Command<ReviewCommand.Settings>
         CancellationToken cancellationToken)
     {
         // Get all snapshots and show a summary
-        var snapshots = _snapshotFinder.Find(settings.Root);
+        var snapshots = _snapshotLocator.Find(settings.Root);
         if (snapshots.Count == 0)
         {
             AnsiConsole.MarkupLine("[yellow]No snapshots to review.[/]");
@@ -57,16 +57,19 @@ public sealed class ReviewCommand : Command<ReviewCommand.Settings>
             AnsiConsole.MarkupLine($"[yellow b]Reviewing[/] [[{index + 1}/{snapshots.Count}]]");
             AnsiConsole.Write(_snapshotRenderer.Render(diff, Math.Max(0, settings.ContextLines)));
 
-            switch (ShowPrompt())
+            var action = ShowPrompt();
+            if (action == SnapshotAction.Skip)
             {
-                case SnapshotAction.Accept:
-                    _snapshotManager.Accept(snapshot);
-                    break;
-                case SnapshotAction.Reject:
-                    _snapshotManager.Reject(snapshot);
-                    break;
-                case SnapshotAction.Skip:
-                    continue;
+                continue;
+            }
+
+            // Reported rather than returned on, since the rest of the review is still worth doing.
+            // An inline snapshot refuses for reasons that are about it alone: the source moved since
+            // the test ran, or its frameworks disagreed about the content.
+            var result = _snapshotManager.Process(snapshot, action);
+            if (!result.Succeeded)
+            {
+                AnsiConsole.Console.ShowSnapshotFailure(snapshot, action, result);
             }
 
             if (!last)

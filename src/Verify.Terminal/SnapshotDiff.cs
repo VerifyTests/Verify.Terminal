@@ -2,11 +2,11 @@ namespace Verify.Terminal;
 
 public sealed class SnapshotDiff
 {
-    public Snapshot Snapshot { get; }
+    public ISnapshot Snapshot { get; }
     public List<DiffPiece> Old { get; }
     public List<DiffPiece> New { get; }
 
-    public SnapshotDiff(Snapshot snapshot, List<DiffPiece> old, List<DiffPiece> @new)
+    public SnapshotDiff(ISnapshot snapshot, List<DiffPiece> old, List<DiffPiece> @new)
     {
         Snapshot = snapshot.NotNull();
         Old = old.NotNull();

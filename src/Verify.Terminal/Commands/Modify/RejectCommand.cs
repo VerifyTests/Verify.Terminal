@@ -6,9 +6,9 @@ public sealed class RejectCommand : ModifyCommand
     public override SnapshotAction Action { get; } = SnapshotAction.Reject;
 
     public RejectCommand(
-        SnapshotFinder snapshotFinder,
+        SnapshotLocator snapshotLocator,
         SnapshotManager snapshotManager)
-            : base(snapshotFinder, snapshotManager)
+            : base(snapshotLocator, snapshotManager)
     {
     }
 }
