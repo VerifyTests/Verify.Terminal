@@ -8,12 +8,12 @@ internal sealed class ReportRenderable : IRenderable
 
     public ReportRenderable(IEnumerable<SegmentLine> lines)
     {
-        _lines = new List<SegmentLine>(lines.NotNull());
+        _lines = new(lines.NotNull());
     }
 
     public Measurement Measure(RenderOptions context, int maxWidth)
     {
-        return new Measurement(maxWidth, maxWidth);
+        return new(maxWidth, maxWidth);
     }
 
     public IEnumerable<Segment> Render(RenderOptions context, int maxWidth)

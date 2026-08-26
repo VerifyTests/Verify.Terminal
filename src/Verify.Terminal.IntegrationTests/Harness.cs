@@ -216,10 +216,10 @@ public sealed class Harness : IDisposable
         return finder.Find(Directory).Single();
     }
 
-    public SnapshotResult Accept(ISnapshot snapshot) =>
+    public static SnapshotResult Accept(ISnapshot snapshot) =>
         CreateManager().Accept(snapshot);
 
-    public SnapshotResult Reject(ISnapshot snapshot) =>
+    public static SnapshotResult Reject(ISnapshot snapshot) =>
         CreateManager().Reject(snapshot);
 
     private static SnapshotManager CreateManager()

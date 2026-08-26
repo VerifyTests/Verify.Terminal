@@ -42,7 +42,7 @@ public sealed class SnapshotFinder
         foreach (var received in Match(root, "**/*.received.*", "received"))
         {
             var (verifiedPath, isRerouted) = GetVerified(received, maps, verifiedByDirectory);
-            result.Add(new Snapshot(received.Path, verifiedPath, isRerouted));
+            result.Add(new(received.Path, verifiedPath, isRerouted));
         }
 
         return result;
@@ -50,7 +50,7 @@ public sealed class SnapshotFinder
 
     private IEnumerable<ParsedName> Match(DirectoryPath root, string pattern, string marker) =>
         _globber
-            .Match(pattern, new GlobberSettings { Root = root })
+            .Match(pattern, new() { Root = root })
             .OfType<FilePath>()
             .Where(_ => !IsInlineStaging(_))
             .Select(_ => ParsedName.Parse(_, marker));
@@ -63,7 +63,7 @@ public sealed class SnapshotFinder
             $"/{InlineSnapshotFinder.StagingDirectoryName}/",
             StringComparison.OrdinalIgnoreCase);
 
-    private (FilePath VerifiedPath, bool IsRerouted) GetVerified(
+    private static (FilePath VerifiedPath, bool IsRerouted) GetVerified(
         ParsedName received,
         ReceivedMaps maps,
         Dictionary<string, List<ParsedName>> verifiedByDirectory)

@@ -69,7 +69,7 @@ public sealed class InlineSnapshotFinderTests
         // with both sets of files to clear once it is dealt with.
         var fileSystem = CreateFileSystem();
         InlineTestData.Stage(fileSystem, InlineTestData.Patch("new snapshot"), "DotNet8_0");
-        InlineTestData.Stage(fileSystem, InlineTestData.Patch("new snapshot"), "DotNet10_0");
+        InlineTestData.Stage(fileSystem, InlineTestData.Patch("new snapshot"));
 
         var result = Find(fileSystem).ShouldHaveSingleItem();
 
@@ -83,7 +83,7 @@ public sealed class InlineSnapshotFinderTests
     {
         var fileSystem = CreateFileSystem();
         InlineTestData.Stage(fileSystem, InlineTestData.Patch("from net8"), "DotNet8_0");
-        InlineTestData.Stage(fileSystem, InlineTestData.Patch("from net10"), "DotNet10_0");
+        InlineTestData.Stage(fileSystem, InlineTestData.Patch("from net10"));
 
         var result = Find(fileSystem).ShouldHaveSingleItem();
 
@@ -156,7 +156,7 @@ public sealed class InlineSnapshotFinderTests
     }
 
     private static FakeFileSystem CreateFileSystem() =>
-        new(new FakeEnvironment(PlatformFamily.Linux));
+        new(new(PlatformFamily.Linux));
 
     private static IReadOnlyList<InlineSnapshot> Find(
         FakeFileSystem fileSystem,

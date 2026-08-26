@@ -17,7 +17,7 @@ public sealed class SnapshotDiffer
 
         var diff = SideBySideDiffBuilder.Instance.BuildDiffModel(oldText, newText, false);
 
-        return new SnapshotDiff(snapshot, diff.OldText.Lines, diff.NewText.Lines);
+        return new(snapshot, diff.OldText.Lines, diff.NewText.Lines);
     }
 
     private (string Old, string New) Text(ISnapshot snapshot)

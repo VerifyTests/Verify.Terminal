@@ -242,7 +242,7 @@ public sealed class InlineSnapshotManagerTests
     }
 
     private static FakeFileSystem CreateFileSystem() =>
-        new(new FakeEnvironment(PlatformFamily.Linux));
+        new(new(PlatformFamily.Linux));
 
     private static InlineSnapshotManager Create(
         IInlineQueueOwner? queue = null,
@@ -262,7 +262,7 @@ public sealed class InlineSnapshotManagerTests
         // Through the finder rather than by hand, so the manager is handed what it is handed in a
         // real run: the patch as it was read back off disk, beside the files it was read from.
         return finder
-            .Find(new DirectoryPath("/Working"))
+            .Find(new("/Working"))
             .SelectMany(_ => _.Staged)
             .ToList();
     }
@@ -271,7 +271,7 @@ public sealed class InlineSnapshotManagerTests
     {
         var globber = new Globber(fileSystem, new FakeEnvironment(PlatformFamily.Linux));
         return globber
-            .Match("**/VerifyInline/*", new GlobberSettings { Root = new DirectoryPath("/Working") })
+            .Match("**/VerifyInline/*", new() { Root = new("/Working") })
             .OfType<FilePath>()
             .Select(_ => _.FullPath)
             .ToList();
