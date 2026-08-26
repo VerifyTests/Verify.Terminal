@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using DiffEngine;
+using Environment = System.Environment;
 
 namespace Verify.Terminal.IntegrationTests;
 
@@ -33,8 +34,8 @@ public sealed class InlineQueueHost : IDisposable
         _listener.Start();
         var port = ((IPEndPoint) _listener.LocalEndpoint).Port;
 
-        _previousPort = System.Environment.GetEnvironmentVariable(DeadInlineQueue.PortVariable);
-        System.Environment.SetEnvironmentVariable(DeadInlineQueue.PortVariable, port.ToString());
+        _previousPort = Environment.GetEnvironmentVariable(DeadInlineQueue.PortVariable);
+        Environment.SetEnvironmentVariable(DeadInlineQueue.PortVariable, port.ToString());
 
         _loop = Task.Run(Listen);
     }
