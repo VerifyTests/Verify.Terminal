@@ -8,7 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Shouldly" />
-    <PackageReference Include="Verify.XunitV3" />
+    <PackageReference Include="Verify.XunitV3" VersionOverride="33.0.0-beta.3" />
     <PackageReference Include="xunit.v3" />
     <ProjectReference Include="..\Verify.Terminal\Verify.Terminal.csproj" />
   </ItemGroup>
