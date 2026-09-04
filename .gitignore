@@ -73,3 +73,4 @@ packages
 
 # Windows
 Thumbs.db
+*.lnk
