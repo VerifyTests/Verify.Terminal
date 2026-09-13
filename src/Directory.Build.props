@@ -1,6 +1,5 @@
 <Project>
   <PropertyGroup Label="Settings">
-    <NoWarn>SC023</NoWarn>
     <Deterministic>true</Deterministic>
     <LangVersion>14</LangVersion>
     <Nullable>enable</Nullable>
@@ -12,7 +11,8 @@
     <ResolveAssemblyReferencesSilent>true</ResolveAssemblyReferencesSilent>
     <ImplicitUsings>enable</ImplicitUsings>
     <MinVerDefaultPreReleaseIdentifiers>preview.0</MinVerDefaultPreReleaseIdentifiers>
-    <Verify_SponsorshipLicenseIgnored>true</Verify_SponsorshipLicenseIgnored>
+    <Verify_SponsorshipExemption>OpenSource</Verify_SponsorshipExemption>
+    <Verify_SponsorshipExemptionUntil>2027-08</Verify_SponsorshipExemptionUntil>
   </PropertyGroup>
 
   <PropertyGroup Label="Deterministic Build" Condition="'$(GITHUB_ACTIONS)' == 'true'">
