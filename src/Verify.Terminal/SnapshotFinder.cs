@@ -10,6 +10,12 @@ public sealed class SnapshotFinder
     private static readonly StringComparison _pathComparison =
         OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 
+    private static readonly StringComparer _pathComparer =
+        StringComparer.FromComparison(_pathComparison);
+
+    // The marker Verify puts on a split mode snapshot directory, in place of one on the file name.
+    private const string _splitMarker = ".received";
+
     private readonly IGlobber _globber;
     private readonly IEnvironment _environment;
 
@@ -39,13 +45,81 @@ public sealed class SnapshotFinder
             .ToDictionary(_ => _.Key, _ => _.ToList(), StringComparer.Ordinal);
 
         var result = new HashSet<Snapshot>();
+        var found = new HashSet<string>(_pathComparer);
         foreach (var received in Match(root, "**/*.received.*", "received"))
         {
             var (verifiedPath, isRerouted) = GetVerified(received, maps, verifiedByDirectory);
             result.Add(new(received.Path, verifiedPath, isRerouted));
+            found.Add(received.Path.FullPath);
         }
 
+        AddMappedOnly(root, maps, found, result);
+
         return result;
+    }
+
+    // `UseUniqueDirectory` in split mode names the directory `{prefix}.received` and the files inside
+    // it after their targets, so nothing in a file name says received and the glob above cannot see
+    // any of them. Verify records the pair for every received file it leaves on disk, split mode
+    // included, so the maps are the only thing that can find these, and the only thing that can say
+    // which verified file each belongs to.
+    //
+    // Any received file the glob did find is skipped here, so this only ever adds what a file name
+    // could not express. Without a map such a snapshot stays invisible: the name carries nothing to
+    // pair on, and inventing a pairing is worse than reporting nothing.
+    private static void AddMappedOnly(
+        DirectoryPath root,
+        ReceivedMaps maps,
+        HashSet<string> found,
+        HashSet<Snapshot> result)
+    {
+        foreach (var pair in maps.Pairs)
+        {
+            var received = new FilePath(pair.Received);
+            if (!found.Add(received.FullPath))
+            {
+                continue;
+            }
+
+            // A map records absolute paths, and a test can send its snapshots anywhere, so a map
+            // found under this root can still name a file outside it. Reviewing a subdirectory must
+            // not reach out of it.
+            if (!IsUnder(root, received) ||
+                IsInlineStaging(received))
+            {
+                continue;
+            }
+
+            var verified = new FilePath(pair.Verified);
+            result.Add(new(received, verified, IsRerouted(received, verified)));
+        }
+    }
+
+    private static bool IsUnder(DirectoryPath root, FilePath path) =>
+        path.FullPath.StartsWith($"{root.FullPath}/", _pathComparison);
+
+    // Display only: what puts "(rerouted)" beside a snapshot whose verified name is not the one its
+    // received name reads as. A split mode directory carries the received uniqueness that its
+    // verified twin drops, so the two names differ whenever the test asked for any.
+    private static bool IsRerouted(FilePath received, FilePath verified)
+    {
+        var literal = SplitLiteralVerified(received);
+        return literal is null ||
+               !literal.Equals(verified.FullPath, _pathComparison);
+    }
+
+    // The verified path a split mode received path reads as, ie. the same file in the sibling
+    // `.verified` directory. Null when the path is not in a split mode directory at all.
+    private static string? SplitLiteralVerified(FilePath received)
+    {
+        var directory = received.GetDirectory().FullPath;
+        if (!directory.EndsWith(_splitMarker, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        var verifiedDirectory = $"{directory[..^_splitMarker.Length]}.verified";
+        return $"{verifiedDirectory}/{received.GetFilename().FullPath}";
     }
 
     private IEnumerable<ParsedName> Match(DirectoryPath root, string pattern, string marker) =>
