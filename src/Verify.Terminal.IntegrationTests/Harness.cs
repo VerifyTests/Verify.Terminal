@@ -192,6 +192,26 @@ public sealed class Harness : IDisposable
             .Select(_ => System.IO.Path.GetFileName(_))
             .ToList();
 
+    // Writes a received map by hand, in the same shape Verify writes them, for a scenario that needs
+    // a map naming something this harness did not produce.
+    public void WriteMap(string received, string verified)
+    {
+        var target = System.IO.Path.Combine(_directory, "obj", "VerifyReceived");
+        System.IO.Directory.CreateDirectory(target);
+        File.WriteAllLines(
+            System.IO.Path.Combine(target, $"{Guid.NewGuid():N}.txt"),
+            [received, verified]);
+    }
+
+    // UseUniqueDirectory in split mode puts the marker in the directory name and names the files
+    // inside after their targets, so none of them are visible to a scan for `*.received.*` files.
+    public IReadOnlyList<string> SplitReceivedFiles() =>
+        System.IO.Directory
+            .GetDirectories(_directory, "*.received")
+            .SelectMany(_ => System.IO.Directory.GetFiles(_, "*", SearchOption.AllDirectories))
+            .Order(StringComparer.Ordinal)
+            .ToList();
+
     // Runs the real SnapshotFinder (real globber, real filesystem) over the temp directory.
     public Snapshot FindSingle() => FindFileSnapshots().Single();
 

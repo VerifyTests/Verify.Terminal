@@ -12,7 +12,7 @@ public sealed class Snapshot : ISnapshot
     {
         get
         {
-            var received = new SnapshotHeader(Received.GetFilename().FullPath);
+            var received = new SnapshotHeader(Describe(Received));
 
             // The verified name is only worth a line of its own when it is not the one the received
             // name reads as, which is exactly when the snapshot was rerouted.
@@ -21,8 +21,26 @@ public sealed class Snapshot : ISnapshot
                 return [received];
             }
 
-            return [received, new(Verified.GetFilename().FullPath, "(rerouted)")];
+            return [received, new(Describe(Verified), "(rerouted)")];
         }
+    }
+
+    // A split mode snapshot is named after its target, and the test it belongs to is the directory
+    // holding it, so the file name alone does not say which snapshot is under review. Every split
+    // mode snapshot in a run would otherwise read the same, commonly `target.txt`.
+    private static string Describe(FilePath path)
+    {
+        var directory = path.GetDirectory().FullPath;
+        var separator = directory.LastIndexOf('/');
+        var directoryName = separator < 0 ? directory : directory[(separator + 1)..];
+
+        if (directoryName.EndsWith(".received", StringComparison.Ordinal) ||
+            directoryName.EndsWith(".verified", StringComparison.Ordinal))
+        {
+            return $"{directoryName}/{path.GetFilename().FullPath}";
+        }
+
+        return path.GetFilename().FullPath;
     }
 
     public Snapshot(FilePath received)
