@@ -68,6 +68,8 @@ jobs:
           path: |
             .artifacts/*.nupkg
             .artifacts/*.snupkg
+          # .artifacts is a hidden directory, which upload-artifact skips by default.
+          include-hidden-files: true
           if-no-files-found: warn
           retention-days: 30
 
