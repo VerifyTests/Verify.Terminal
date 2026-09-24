@@ -125,6 +125,31 @@ public sealed class InlineSnapshotFinderTests
     }
 
     [Fact]
+    public void Should_Ignore_A_Staged_Snapshot_Outside_The_Root()
+    {
+        // Staging sits under a project's obj, but the patch inside it names wherever the source
+        // was. Reviewing a directory must not reach out of it, which is the rule the queue gets.
+        var fileSystem = CreateFileSystem();
+        InlineTestData.Stage(
+            fileSystem,
+            InlineTestData.Patch("new snapshot", source: "/Other/src/SampleTests.cs"));
+
+        Find(fileSystem).ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void Should_Ignore_A_Staged_Snapshot_Whose_Source_Is_Gone()
+    {
+        // The literal is located by searching the source file, so a patch naming one that has gone
+        // can never apply. Offering it is offering something no accept can take.
+        var fileSystem = CreateFileSystem();
+        InlineTestData.Stage(fileSystem, InlineTestData.Patch("new snapshot"));
+        fileSystem.GetFile(InlineTestData.SourceFile).Delete();
+
+        Find(fileSystem).ShouldBeEmpty();
+    }
+
+    [Fact]
     public void Should_Ignore_Queued_Snapshots_Outside_The_Root()
     {
         // The queue is machine wide: one owner holds the pending snapshots of every solution on it.

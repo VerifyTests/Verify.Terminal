@@ -108,7 +108,8 @@ public sealed class InlineSnapshotFinder
         foreach (var path in paths)
         {
             if (!TryReadPatch(path, out var patch) ||
-                !IsReviewable(patch))
+                !IsReviewable(patch) ||
+                !HasReviewableSource(root, patch))
             {
                 continue;
             }
@@ -150,6 +151,24 @@ public sealed class InlineSnapshotFinder
     // a pending snapshot. Checked rather than assumed, since a patch is read off disk.
     private static bool IsReviewable(InlinePatch patch) =>
         patch.Mode != InlinePatchMode.Remove;
+
+    /// <summary>
+    /// Whether the source file a staged patch names is one this scan can offer.
+    /// </summary>
+    /// <remarks>
+    /// Staging sits under a project's obj, but the patch inside it names wherever the source was,
+    /// which is not the same question. A queued snapshot is asked both of these by the owner and by
+    /// <see cref="IsUnder" />; a staged one was asked neither, so a directory full of patches from
+    /// runs whose sources have since gone was offered as pending, and none of it could be accepted.
+    /// <para>
+    /// Under the root, because reviewing a directory must not reach out of it, which is the rule the
+    /// queue already gets. And still on disk, because the literal is located by searching that file:
+    /// a patch naming one that has gone can never apply, whatever is done to it here.
+    /// </para>
+    /// </remarks>
+    private bool HasReviewableSource(DirectoryPath root, InlinePatch patch) =>
+        IsUnder(root, patch.SourceFile) &&
+        _fileSystem.File.Exists(new FilePath(patch.SourceFile).MakeAbsolute(_environment));
 
     private bool IsUnder(DirectoryPath root, string path)
     {
