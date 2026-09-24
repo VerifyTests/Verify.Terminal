@@ -44,18 +44,21 @@ public sealed class Harness : IDisposable
     public DirectoryPath Directory { get; }
 
     // Verify writes maps to this test project's obj directory, but a real run scans a root that
-    // contains obj. So copy this scenario's maps under the harness directory to match that layout.
-    // Returns how many were copied, so a test can assert the map path is actually set up rather than
-    // silently falling back.
+    // contains obj. So this scenario's maps are moved under the harness directory to match that
+    // layout. Returns how many were moved, so a test can assert the map path is actually set up
+    // rather than silently falling back.
+    //
+    // Moved rather than copied: the paths in them are this scenario's temp directory, which goes
+    // when it does, so a copy leaves a map naming nothing behind in obj for every scenario ever run.
     public int PublishMaps()
     {
-        var copied = 0;
+        var moved = 0;
         var source = System.IO.Path.Combine(
             AttributeReader.GetIntermediateDirectory(typeof(Harness).Assembly),
             "VerifyReceived");
         if (!System.IO.Directory.Exists(source))
         {
-            return copied;
+            return moved;
         }
 
         var target = System.IO.Path.Combine(_directory, "obj", "VerifyReceived");
@@ -67,12 +70,12 @@ public sealed class Harness : IDisposable
             if (lines.Length > 0 &&
                 lines[0].StartsWith(_directory, StringComparison.OrdinalIgnoreCase))
             {
-                File.Copy(file, System.IO.Path.Combine(target, System.IO.Path.GetFileName(file)), true);
-                copied++;
+                File.Move(file, System.IO.Path.Combine(target, System.IO.Path.GetFileName(file)), true);
+                moved++;
             }
         }
 
-        return copied;
+        return moved;
     }
 
     public VerifySettings CreateSettings()
@@ -121,18 +124,22 @@ public sealed class Harness : IDisposable
         File.ReadAllText(System.IO.Path.Combine(_directory, "SampleTests.cs"));
 
     // Verify stages inline snapshots in this test project's obj directory, but a real run scans a
-    // root that contains obj. So copy this scenario's staged files under the harness directory to
-    // match that layout. Returns how many were copied, so a test can assert that staging really
+    // root that contains obj. So this scenario's staged files are moved under the harness directory
+    // to match that layout. Returns how many were moved, so a test can assert that staging really
     // happened rather than silently finding nothing.
+    //
+    // Moved rather than copied, for the reason PublishMaps is: these patches name a source file in
+    // this scenario's temp directory, so a copy leaves a trio naming a file that has gone behind in
+    // obj, once per scenario per run, for whatever scans this project next.
     public int PublishInline()
     {
-        var copied = 0;
+        var moved = 0;
         var source = System.IO.Path.Combine(
             AttributeReader.GetIntermediateDirectory(typeof(Harness).Assembly),
             InlineSnapshotFinder.StagingDirectoryName);
         if (!System.IO.Directory.Exists(source))
         {
-            return copied;
+            return moved;
         }
 
         var target = System.IO.Path.Combine(_directory, "obj", InlineSnapshotFinder.StagingDirectoryName);
@@ -151,16 +158,16 @@ public sealed class Harness : IDisposable
             var stem = System.IO.Path.GetFileNameWithoutExtension(patch);
             foreach (var file in System.IO.Directory.GetFiles(source, $"{stem}.*"))
             {
-                File.Copy(
+                File.Move(
                     file,
                     System.IO.Path.Combine(target, System.IO.Path.GetFileName(file)),
                     true);
             }
 
-            copied++;
+            moved++;
         }
 
-        return copied;
+        return moved;
     }
 
     // What the harness directory holds once PublishInline has run, which is what a scan reads and
@@ -255,6 +262,8 @@ public sealed class Harness : IDisposable
         System.Environment.SetEnvironmentVariable(DiffEngine.DiffRunner.InlineViewerVariable, _inlineViewer);
         System.Environment.SetEnvironmentVariable(MaxInstancesVariable, _maxInstances);
 
+        ClearIntermediate();
+
         try
         {
             System.IO.Directory.Delete(_directory, recursive: true);
@@ -262,6 +271,58 @@ public sealed class Harness : IDisposable
         catch
         {
             // Best effort cleanup of the temp directory.
+        }
+    }
+
+    // Verify writes into this test project's obj as it runs: a map for every received file it
+    // leaves, and a staged trio for an inline snapshot nothing owned. What a scenario published was
+    // moved, but one that published nothing, or wrote more afterwards, leaves the rest naming a
+    // temp directory that goes with this harness. Taken here rather than left to accumulate a
+    // run's worth per run, for whatever scans this project next.
+    private void ClearIntermediate()
+    {
+        var intermediate = AttributeReader.GetIntermediateDirectory(typeof(Harness).Assembly);
+
+        // A map holds the received path on its first line, so the file itself says whose it is.
+        ClearNaming(
+            System.IO.Path.Combine(intermediate, "VerifyReceived"),
+            "*",
+            _ => System.IO.Path.GetFileName(_));
+
+        // Only the patch of a staged trio names the source; the two texts beside it are snapshot
+        // content, and are found by the name they share with it.
+        ClearNaming(
+            System.IO.Path.Combine(intermediate, InlineSnapshotFinder.StagingDirectoryName),
+            "*.inlinepatch",
+            _ => $"{System.IO.Path.GetFileNameWithoutExtension(_)}.*");
+    }
+
+    private void ClearNaming(string directory, string pattern, Func<string, string> companions)
+    {
+        if (!System.IO.Directory.Exists(directory))
+        {
+            return;
+        }
+
+        foreach (var file in System.IO.Directory.GetFiles(directory, pattern))
+        {
+            try
+            {
+                if (!File.ReadAllText(file).Contains(_directory, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                foreach (var owned in System.IO.Directory.GetFiles(directory, companions(file)))
+                {
+                    File.Delete(owned);
+                }
+            }
+            catch (Exception exception)
+                when (exception is IOException or UnauthorizedAccessException)
+            {
+                // Best effort: a file left here is noise in obj rather than a failed scenario.
+            }
         }
     }
 }

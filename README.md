@@ -90,6 +90,8 @@ Accepting through the owner rather than here is what keeps one writer per source
 
 Staged snapshots live in the intermediate (`obj`) directory of the test project, so, as with [recorded pairings](#recorded-pairings), the working directory has to contain `obj`.
 
+A staged patch names the source file its snapshot belongs to, which is a separate question from where it was staged, so two kinds are passed over rather than listed. One whose source file is outside the working directory, since reviewing a directory does not reach out of it, which is the rule the queue already gets. And one whose source file has gone, since the literal is located by searching that file, so nothing can be accepted into it. `obj` keeps what a run staged until something clears it, and a deleted test leaves patches of the second kind behind.
+
 ### Snapshots that cannot be accepted
 
 A snapshot that refuses says why, and does not stop the rest of the run being processed. Two cases:

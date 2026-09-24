@@ -1,4 +1,4 @@
-namespace Verify.Terminal.Tests;
+﻿namespace Verify.Terminal.Tests;
 
 public sealed class InlineSnapshotManagerTests
 {
@@ -77,10 +77,10 @@ public sealed class InlineSnapshotManagerTests
 
         var fileSystem = CreateFileSystem();
         var patch = InlineTestData.Patch("new snapshot", line: 4, source: source.Path);
-        InlineTestData.Stage(fileSystem, patch);
+        var staged = InlineTestData.Stage(fileSystem, patch);
 
         var queue = new FakeInlineQueueOwner { AcceptOutcome = InlineAcceptOutcome.Unknown };
-        var snapshot = new InlineSnapshot(patch, isQueued: true, Staged(fileSystem, patch));
+        var snapshot = new InlineSnapshot(patch, isQueued: true, [staged]);
 
         Create(queue, fileSystem).Accept(snapshot).Succeeded.ShouldBeTrue();
 
@@ -95,10 +95,10 @@ public sealed class InlineSnapshotManagerTests
     {
         var fileSystem = CreateFileSystem();
         var patch = InlineTestData.Patch("new snapshot");
-        InlineTestData.Stage(fileSystem, patch);
+        var staged = InlineTestData.Stage(fileSystem, patch);
 
         var queue = new FakeInlineQueueOwner { AcceptOutcome = InlineAcceptOutcome.Accepted };
-        var snapshot = new InlineSnapshot(patch, isQueued: true, Staged(fileSystem, patch));
+        var snapshot = new InlineSnapshot(patch, isQueued: true, [staged]);
 
         Create(queue, fileSystem).Accept(snapshot).Succeeded.ShouldBeTrue();
 
@@ -119,9 +119,9 @@ public sealed class InlineSnapshotManagerTests
 
         var fileSystem = CreateFileSystem();
         var patch = InlineTestData.Patch("new snapshot", line: 4, source: source.Path);
-        InlineTestData.Stage(fileSystem, patch);
+        var staged = InlineTestData.Stage(fileSystem, patch);
 
-        var snapshot = new InlineSnapshot(patch, isQueued: false, Staged(fileSystem, patch));
+        var snapshot = new InlineSnapshot(patch, isQueued: false, [staged]);
 
         Create(fileSystem: fileSystem).Accept(snapshot).Succeeded.ShouldBeTrue();
 
@@ -146,9 +146,9 @@ public sealed class InlineSnapshotManagerTests
 
         var fileSystem = CreateFileSystem();
         var patch = InlineTestData.Patch("new snapshot", line: 4, source: source.Path);
-        InlineTestData.Stage(fileSystem, patch);
+        var staged = InlineTestData.Stage(fileSystem, patch);
 
-        var snapshot = new InlineSnapshot(patch, isQueued: false, Staged(fileSystem, patch));
+        var snapshot = new InlineSnapshot(patch, isQueued: false, [staged]);
 
         var result = Create(fileSystem: fileSystem).Accept(snapshot);
 
@@ -211,7 +211,7 @@ public sealed class InlineSnapshotManagerTests
         // staging is cleared and the reject stands rather than reporting a failure it cannot back.
         var fileSystem = CreateFileSystem();
         var patch = InlineTestData.Patch("new snapshot");
-        InlineTestData.Stage(fileSystem, patch);
+        var staged = InlineTestData.Stage(fileSystem, patch);
 
         var queue = new FakeInlineQueueOwner
         {
@@ -220,7 +220,7 @@ public sealed class InlineSnapshotManagerTests
             StillPendingResult = null,
         };
 
-        var snapshot = new InlineSnapshot(patch, isQueued: true, Staged(fileSystem, patch));
+        var snapshot = new InlineSnapshot(patch, isQueued: true, [staged]);
 
         Create(queue, fileSystem).Reject(snapshot).Succeeded.ShouldBeTrue();
 
@@ -232,9 +232,9 @@ public sealed class InlineSnapshotManagerTests
     {
         var fileSystem = CreateFileSystem();
         var patch = InlineTestData.Patch("new snapshot");
-        InlineTestData.Stage(fileSystem, patch);
+        var staged = InlineTestData.Stage(fileSystem, patch);
 
-        var snapshot = new InlineSnapshot(patch, isQueued: false, Staged(fileSystem, patch));
+        var snapshot = new InlineSnapshot(patch, isQueued: false, [staged]);
 
         Create(fileSystem: fileSystem).Reject(snapshot).Succeeded.ShouldBeTrue();
 
@@ -249,24 +249,10 @@ public sealed class InlineSnapshotManagerTests
         FakeFileSystem? fileSystem = null) =>
         new(fileSystem ?? CreateFileSystem(), queue ?? new FakeInlineQueueOwner());
 
-    // The staged trio as the finder builds it, for a test that starts from the manager instead.
-    private static IReadOnlyList<StagedInline> Staged(FakeFileSystem fileSystem, InlinePatch patch)
-    {
-        var globber = new Globber(fileSystem, new FakeEnvironment(PlatformFamily.Linux));
-        var finder = new InlineSnapshotFinder(
-            globber,
-            new FakeEnvironment(PlatformFamily.Linux),
-            fileSystem,
-            new FakeInlineQueueOwner());
-
-        // Through the finder rather than by hand, so the manager is handed what it is handed in a
-        // real run: the patch as it was read back off disk, beside the files it was read from.
-        return finder
-            .Find(new("/Working"))
-            .SelectMany(_ => _.Staged)
-            .ToList();
-    }
-
+    // The staged trio comes from InlineTestData, which writes it and hands back what a scan would
+    // report. Not through the finder: the sources below are real files in a temp directory, so an
+    // accept has something to rewrite, and a scan declines a patch whose source is outside the root
+    // it was pointed at.
     private static IReadOnlyList<string> StagedFiles(FakeFileSystem fileSystem)
     {
         var globber = new Globber(fileSystem, new FakeEnvironment(PlatformFamily.Linux));
