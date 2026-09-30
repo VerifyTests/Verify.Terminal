@@ -31,7 +31,7 @@ public sealed class ReviewCommand : Command<ReviewCommand.Settings>
         public int ContextLines { get; set; } = 2;
     }
 
-    protected override int Execute(
+    public override int Execute(
         CommandContext context,
         Settings settings,
         CancellationToken cancellationToken)

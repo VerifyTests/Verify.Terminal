@@ -26,7 +26,7 @@ public abstract class ModifyCommand : Command<ModifyCommand.Settings>
         _snapshotManager = snapshotManager.NotNull();
     }
 
-    protected sealed override int Execute(
+    public sealed override int Execute(
         CommandContext context,
         Settings settings,
         CancellationToken cancellationToken)
