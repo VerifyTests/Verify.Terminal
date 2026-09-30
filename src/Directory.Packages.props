@@ -3,20 +3,20 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="DiffEngine" Version="20.5.2" />
+    <PackageVersion Include="DiffEngine" Version="20.6.0" />
     <PackageVersion Include="DiffPlex" Version="1.9.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.12" />
     <PackageVersion Include="Spectre.Console" Version="0.57.2" />
-    <PackageVersion Include="Spectre.Console.Cli" Version="0.55.0" />
+    <PackageVersion Include="Spectre.Console.Cli" Version="0.57.2" />
     <PackageVersion Include="Spectre.Console.Analyzer" Version="1.0.0" />
     <PackageVersion Include="Spectre.IO" Version="0.23.0" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="Spectre.Console.Testing" Version="0.57.2" />
     <PackageVersion Include="Spectre.IO.Testing" Version="0.23.0" />
     <PackageVersion Include="Spectre.Verify.Extensions" Version="28.16.0" />
-    <PackageVersion Include="Verify.ExceptionParsing" Version="33.1.5" />
-    <PackageVersion Include="Verify" Version="33.1.5" />
-    <PackageVersion Include="Verify.XunitV3" Version="33.1.5" />
+    <PackageVersion Include="Verify.ExceptionParsing" Version="33.2.0" />
+    <PackageVersion Include="Verify" Version="33.2.0" />
+    <PackageVersion Include="Verify.XunitV3" Version="33.2.0" />
     <PackageVersion Include="xunit.v3" Version="4.0.1" />
     <PackageVersion Include="MinVer" PrivateAssets="All" Version="8.0.0" />
     <PackageVersion Include="Roslynator.Analyzers" Version="5.0.0" />
