@@ -3,7 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="DiffEngine" Version="20.8.2" />
+    <PackageVersion Include="DiffEngine" Version="20.9.0" />
     <PackageVersion Include="DiffPlex" Version="1.9.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.14" />
     <PackageVersion Include="Spectre.Console" Version="0.57.2" />
@@ -17,7 +17,7 @@
     <PackageVersion Include="Verify.ExceptionParsing" Version="33.3.4" />
     <PackageVersion Include="Verify" Version="33.3.4" />
     <PackageVersion Include="Verify.XunitV3" Version="33.3.4" />
-    <PackageVersion Include="xunit.v3" Version="4.0.2" />
+    <PackageVersion Include="xunit.v3" Version="4.0.3" />
     <PackageVersion Include="MinVer" PrivateAssets="All" Version="8.0.0" />
     <PackageVersion Include="Roslynator.Analyzers" Version="5.0.1" />
   </ItemGroup>
