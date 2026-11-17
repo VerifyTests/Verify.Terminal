@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!-- Multi-targeted on purpose: this exercises Verify's multi-targeting naming, where the
          received file always carries a runtime and version suffix that the verified file does not. -->
-    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
