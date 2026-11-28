@@ -1,4 +1,4 @@
-* text=auto
+* text=auto eol=lf
 *.png binary
 
 *.verified.txt text eol=lf working-tree-encoding=UTF-8
